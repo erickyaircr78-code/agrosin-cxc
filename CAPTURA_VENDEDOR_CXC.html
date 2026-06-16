@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Cobros AGROSIN</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--azul:#1d4ed8;--verde:#15803d;--rojo:#dc2626;--gris:#64748b;--borde:#e2e8f0;--fondo:#f1f5f9;--blanco:#ffffff;--texto:#0f172a;}
+body{font-family:'Nunito',sans-serif;background:var(--fondo);min-height:100vh;display:flex;flex-direction:column;}
+.header{background:var(--azul);}
+.header-inner{padding:18px 20px 16px;text-align:center;position:relative;}
+.logo-txt{font-size:11px;font-weight:900;letter-spacing:3px;color:rgba(255,255,255,.55);}
+.titulo{font-size:22px;font-weight:900;color:#fff;margin-top:2px;}
+.subtitulo{font-size:12px;color:rgba(255,255,255,.65);margin-top:3px;}
+.conn{position:absolute;top:18px;right:16px;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:rgba(255,255,255,.7);}
+.cdot{width:8px;height:8px;border-radius:50%;background:#86efac;animation:pp 2s ease-in-out infinite;}
+.cdot.off{background:#fca5a5;animation:none;}
+@keyframes pp{0%,100%{opacity:1}50%{opacity:.3}}
+.cuerpo{flex:1;padding:16px 14px 48px;}
+.avance-card{background:linear-gradient(135deg,#1d4ed8 0%,#1e40af 100%);border-radius:16px;padding:18px 18px 14px;margin-bottom:14px;color:#fff;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.avance-saludo{font-size:13px;font-weight:700;opacity:.8;margin-bottom:10px;letter-spacing:.5px;}
+.avance-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.avance-item{background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;}
+.avance-item.full{grid-column:1/-1;}
+.avance-lbl{font-size:10px;font-weight:700;opacity:.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.avance-val{font-size:18px;font-weight:900;}
+.avance-val.verde{color:#86efac;}
+.avance-val.rojo{color:#fca5a5;}
+.avance-val.amarillo{color:#fde68a;}
+.avance-bar-bg{height:6px;background:rgba(255,255,255,.2);border-radius:10px;overflow:hidden;margin-top:6px;}
+.avance-bar-fill{height:100%;border-radius:10px;transition:width .5s ease;}
+.avance-sub{font-size:10px;opacity:.7;margin-top:4px;}
+.tarjeta{background:var(--blanco);border-radius:18px;box-shadow:0 2px 16px rgba(0,0,0,.07);padding:20px 18px;margin-bottom:14px;}
+.tarjeta-titulo{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);margin-bottom:16px;}
+.campo{margin-bottom:13px;}
+.campo label{display:block;font-size:11px;font-weight:800;color:var(--gris);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.campo select,.campo input{width:100%;padding:15px 14px;border:2px solid var(--borde);border-radius:12px;font-size:16px;font-family:'Nunito',sans-serif;font-weight:700;background:#f8fafc;color:var(--texto);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none;}
+.campo select:focus,.campo input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(29,78,216,.1);background:#fff;}
+.campo input[type=number]{font-size:24px;letter-spacing:.5px;}
+.fila2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.dias-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.dias-radio{display:none;}
+.dia-lbl{display:block;padding:13px 4px;border:2px solid var(--borde);border-radius:12px;background:#f8fafc;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--gris);text-align:center;transition:all .15s;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;}
+.dias-radio:checked+.dia-lbl{background:var(--azul);border-color:var(--azul);color:#fff;box-shadow:0 3px 10px rgba(29,78,216,.35);}
+.btn-reg{width:100%;padding:18px;background:var(--verde);color:#fff;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 16px rgba(21,128,61,.35);transition:all .15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;-webkit-user-select:none;user-select:none;}
+.btn-reg:active{transform:scale(.97);box-shadow:none;}
+.btn-reg:disabled{background:#94a3b8;box-shadow:none;}
+.hist-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--borde);border-radius:12px;margin-bottom:8px;background:#f8fafc;}
+.hist-izq{flex:1;min-width:0;}
+.hist-nombre{font-size:13px;font-weight:800;color:var(--texto);}
+.hist-meta{font-size:11px;color:var(--gris);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hist-monto{font-size:17px;font-weight:900;color:var(--verde);white-space:nowrap;}
+.hist-del{background:none;border:none;color:#cbd5e1;font-size:18px;cursor:pointer;padding:4px 6px;border-radius:6px;flex-shrink:0;touch-action:manipulation;}
+.hist-del:active{color:var(--rojo);background:#fee2e2;}
+.resumen-dia{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:12px;color:var(--verde);font-weight:700;}
+.vacio{text-align:center;color:var(--gris);font-size:13px;padding:22px 0;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(70px);background:#0f172a;color:#fff;padding:13px 26px;border-radius:40px;font-size:14px;font-weight:800;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;max-width:88vw;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--verde);}
+.toast.err{background:var(--rojo);}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-inner">
+    <div class="conn"><span class="cdot" id="cdot"></span><span id="clbl">Conectando…</span></div>
+    <div class="logo-txt">AGROSIN</div>
+    <div class="titulo">📲 Registro de Cobro</div>
+    <div class="subtitulo">Captura tus pagos del día</div>
+  </div>
+</div>
+
+<div class="cuerpo">
+  <div id="avanceCard" style="display:none;"></div>
+  <div class="tarjeta">
+    <div class="tarjeta-titulo">✏️ Nuevo registro</div>
+    <div class="campo">
+      <label>Tu nombre (vendedor)</label>
+      <select id="selVendedor" onchange="mostrarAvance(this.value)" onclick="mostrarAvance(this.value)">
+        <option value="">— Selecciona tu nombre —</option>
+        <optgroup label="🏙 CDMX">
+          <option>ABRAHAM</option>
+          <option>ALFREDO</option>
+          <option>ANTONIO</option>
+          <option>CARLOS RONQUILLO</option>
+          <option>CASAUBON</option>
+          <option>CUAUHTEMOC</option>
+          <option>DANIEL M</option>
+          <option>ELVIRA</option>
+          <option>ESPERANZA</option>
+          <option>FELIX</option>
+          <option>OLGA ORTIZ</option>
+          <option>FERNANDO GOMEZ</option>
+          <option>GERARDO HERNANDEZ</option>
+          <option>ISRAEL ODIN</option>
+          <option>JOSE LABASTIDA</option>
+          <option>JOSE RAMOS</option>
+          <option>JUAN OCAÑA</option>
+          <option>LUIS VENTURA</option>
+          <option>MANUEL TORRES</option>
+          <option>OLGA</option>
+          <option>PATY GARCIA</option>
+          <option>RAYMUNDO LOPEZ</option>
+          <option>RICARDO BARRERA</option>
+          <option>ROBERTO</option>
+          <option>RODRIGO GONZALEZ</option>
+          <option>ROXANA</option>
+        </optgroup>
+        <optgroup label="🌿 MORELOS">
+          <option>DAVID VEGA</option>
+          <option>EMMANUEL</option>
+          <option>ENRIQUE</option>
+          <option>ENRIQUE ACAP</option>
+          <option>EVA JOAQUIN</option>
+          <option>IRMA HDZ</option>
+          <option>ISRAEL</option>
+          <option>JOSUE</option>
+          <option>JUAN CARLOS</option>
+          <option>MARTIN REYES</option>
+          <option>RICARDO FIGUEROA</option>
+          <option>ROBERTO HDEZ</option>
+          <option>ULISES</option>
+          <option>VICTOR HUGO</option>
+        </optgroup>
+        <optgroup label="⛪ PUEBLA">
+          <option>ALBERTO GARCIA</option>
+          <option>EMILIO</option>
+          <option>JORGE</option>
+          <option>JOSE HERNANDEZ</option>
+          <option>MARCO ANTONIO</option>
+          <option>RICARDO HDZ J</option>
+          <option>RICARDO PEREZ</option>
+          <option>ROSENDO</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Día de cobro</label>
+      <div class="dias-grid">
+        <span><input type="radio" name="dia" id="dia_lun" value="lun" class="dias-radio"><label for="dia_lun" class="dia-lbl">Lun</label></span>
+        <span><input type="radio" name="dia" id="dia_mar" value="mar" class="dias-radio"><label for="dia_mar" class="dia-lbl">Mar</label></span>
+        <span><input type="radio" name="dia" id="dia_mie" value="mie" class="dias-radio"><label for="dia_mie" class="dia-lbl">Mié</label></span>
+        <span><input type="radio" name="dia" id="dia_jue" value="jue" class="dias-radio"><label for="dia_jue" class="dia-lbl">Jue</label></span>
+        <span><input type="radio" name="dia" id="dia_vie" value="vie" class="dias-radio"><label for="dia_vie" class="dia-lbl">Vie</label></span>
+        <span><input type="radio" name="dia" id="dia_sab" value="sab" class="dias-radio"><label for="dia_sab" class="dia-lbl">Sáb</label></span>
+      </div>
+    </div>
+    <div class="campo">
+      <label>Monto cobrado ($)</label>
+      <input type="number" id="inpMonto" placeholder="0.00" min="1" step="0.01" inputmode="decimal" autocomplete="off">
+    </div>
+    <div class="fila2">
+      <div class="campo">
+        <label>Tipo de pago</label>
+        <select id="selTipo">
+          <option value="">— Selecciona —</option>
+          <option>Transferencia</option>
+          <option>Efectivo</option>
+          <option>Cheque</option>
+          <option>Depósito</option>
+          <option>Terminal Bancaria</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Banco</label>
+        <select id="selBanco">
+          <option value="">— Selecciona —</option>
+          <option>INBURSA</option>
+          <option>BANORTE</option>
+          <option>SCOTIABANK</option>
+          <option>BANAMEX</option>
+          <option>SANTANDER</option>
+          <option>BBVA-9</option>
+          <option>BBVA-1</option>
+          <option>AZTECA</option>
+          <option>BANBAJIO</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" class="btn-reg" id="btnReg" onclick="registrar()">
+      <span>💾</span> Registrar Cobro
+    </button>
+  </div>
+  <div class="tarjeta">
+    <div class="tarjeta-titulo">📋 Mis registros de hoy</div>
+    <div id="resumenHoy"></div>
+    <div id="listaHist"><div class="vacio">Sin registros hoy.</div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCcD-B0riHZ6s0FBuolv49ILCF2Rkf767o",
+  authDomain:"agrosin-cxc-prueba.firebaseapp.com",
+  databaseURL:"https://agrosin-cxc-prueba-default-rtdb.firebaseio.com",
+  projectId:"agrosin-cxc-prueba",
+  storageBucket:"agrosin-cxc-prueba.firebasestorage.app",
+  messagingSenderId:"793848064740",
+  appId:"1:793848064740:web:dca9cf77e9c3ff216a9af1"
+});
+var db = firebase.database();
+
+var VD_CARTERA = {
+  "IRMA HDZ":{t:462905.20},"ISRAEL ODIN":{t:405521.69},"EMMANUEL":{t:268948.82},
+  "RAYMUNDO LOPEZ":{t:152669.90},"CASAUBON":{t:13295.48},"RICARDO HDZ J":{t:285146.21},
+  "EMILIO":{t:226972.22},"DANIEL M":{t:401498.68},"MANUEL TORRES":{t:191033.35},
+  "GERARDO HERNANDEZ":{t:187597.76},"LUIS VENTURA":{t:172611.76},"CARLOS RONQUILLO":{t:172135.79},
+  "MARTIN REYES":{t:170449.94},"RICARDO BARRERA":{t:163549.48},"EVA JOAQUIN":{t:312575.67},
+  "ROBERTO HDEZ":{t:154555.51},"ENRIQUE":{t:151442.23},"ANTONIO":{t:139583.16},
+  "ALBERTO GARCIA":{t:127419.83},"VICTOR HUGO":{t:122379.69},"ENRIQUE ACAP":{t:117712.21},
+  "ALFREDO":{t:112005.14},"ROBERTO":{t:106370.94},"FERNANDO GOMEZ":{t:97919.65},
+  "ABRAHAM":{t:84804.71},"JUAN CARLOS":{t:82124.45},"JOSE RAMOS":{t:81370.62},
+  "ELVIRA":{t:80164.31},"MARCO ANTONIO":{t:78487.25},"JORGE":{t:66250.00},
+  "ISRAEL":{t:65241.23},"ROSENDO":{t:64307.49},"JOSE HERNANDEZ":{t:61511.69},
+  "JUAN OCAÑA":{t:54780.69},"ROXANA":{t:52765.07},"RICARDO FIGUEROA":{t:43625.71},
+  "JOSUE":{t:42614.15},"ULISES":{t:40634.68},"RICARDO PEREZ":{t:30816.91},
+  "PATY GARCIA":{t:23259.55},"OLGA":{t:18960.32},"JOSE LABASTIDA":{t:15245.84},
+  "DAVID VEGA":{t:12872.40},"CUAUHTEMOC":{t:221123.07},"RODRIGO GONZALEZ":{t:1455.02},
+  "ESPERANZA":{t:534.97},"FELIX":{t:3227.99},"OLGA ORTIZ":{t:8415.01}
+};
+
+var diaSeleccionado = null;
+document.addEventListener('touchstart', function(){}, {passive:true});
+var mapaDias = {1:'lun',2:'mar',3:'mie',4:'jue',5:'vie',6:'sab'};
+var diaHoy = mapaDias[new Date().getDay()];
+if (diaHoy) { diaSeleccionado = diaHoy; var rh = document.getElementById('dia_'+diaHoy); if(rh) rh.checked=true; }
+document.querySelectorAll('.dias-radio').forEach(function(r){ r.addEventListener('change',function(){ diaSeleccionado=this.value; }); });
+
+db.ref('.info/connected').on('value', function(s) {
+  var ok = s.val() === true;
+  document.getElementById('cdot').className = 'cdot' + (ok ? '' : ' off');
+  document.getElementById('clbl').textContent = ok ? 'En línea ✓' : 'Sin internet ✗';
+});
+
+function mostrarAvance(vendor) {
+  var card = document.getElementById('avanceCard');
+  if (!vendor) { card.style.display='none'; card.innerHTML=''; return; }
+  var info = VD_CARTERA[vendor];
+  if (!info) { card.style.display='none'; return; }
+  var key = vendor.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_').toUpperCase();
+  db.ref('cobros/'+key).once('value').then(function(snap) {
+    var c=snap.val()||{};
+    var dias=['lun','mar','mie','jue','vie','sab'];
+    var cob=dias.reduce(function(s,d){return s+(+c[d]||0);},0);
+    var fal=Math.max(0,info.t-cob);
+    var pct=info.t>0?Math.min(100,(cob/info.t)*100):0;
+    var colorPct=pct>=60?'verde':pct>=25?'amarillo':'rojo';
+    var colorBarra=pct>=60?'#86efac':pct>=25?'#fde68a':'#fca5a5';
+    var nombre=vendor.split(' ')[0];
+    nombre=nombre.charAt(0).toUpperCase()+nombre.slice(1).toLowerCase();
+    card.innerHTML='<div class="avance-card">'+
+      '<div class="avance-saludo">👋 Hola '+nombre+', tu avance de esta semana:</div>'+
+      '<div class="avance-grid">'+
+        '<div class="avance-item"><div class="avance-lbl">Total Cartera</div><div class="avance-val">$'+Math.round(info.t).toLocaleString('es-MX')+'</div></div>'+
+        '<div class="avance-item"><div class="avance-lbl">Cobrado</div><div class="avance-val verde">'+(cob>0?'$'+Math.round(cob).toLocaleString('es-MX'):'$0')+'</div></div>'+
+        '<div class="avance-item"><div class="avance-lbl">Falta por Cobrar</div><div class="avance-val rojo">$'+Math.round(fal).toLocaleString('es-MX')+'</div></div>'+
+        '<div class="avance-item"><div class="avance-lbl">Avance</div><div class="avance-val '+colorPct+'">'+pct.toFixed(1)+'%</div></div>'+
+        '<div class="avance-item full"><div class="avance-lbl">Progreso</div>'+
+          '<div class="avance-bar-bg"><div class="avance-bar-fill" style="width:'+Math.round(pct)+'%;background:'+colorBarra+'"></div></div>'+
+          '<div class="avance-sub">'+pct.toFixed(1)+'% de tu meta · faltan $'+Math.round(fal).toLocaleString('es-MX')+'</div>'+
+        '</div>'+
+      '</div></div>';
+    card.style.display='block';
+  }).catch(function(){ card.style.display='none'; });
+}
+
+function registrar() {
+  var vendor = document.getElementById('selVendedor').value.trim();
+  var monto  = parseFloat(document.getElementById('inpMonto').value);
+  var tipo   = document.getElementById('selTipo').value.trim();
+  var banco  = document.getElementById('selBanco').value.trim();
+  if (!vendor)              { toast('⚠️ Selecciona tu nombre','err');       return; }
+  if (!diaSeleccionado)     { toast('⚠️ Selecciona el día','err');          return; }
+  if (!monto || monto <= 0) { toast('⚠️ Ingresa un monto válido','err');    return; }
+  if (!tipo)                { toast('⚠️ Selecciona el tipo de pago','err'); return; }
+  if (!banco)               { toast('⚠️ Selecciona el banco','err');        return; }
+  var btn = document.getElementById('btnReg');
+  btn.disabled = true; btn.innerHTML = '<span>⏳</span> Enviando…';
+  var key = vendor.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_').toUpperCase();
+  var refDia = db.ref('cobros/'+key+'/'+diaSeleccionado);
+  refDia.once('value').then(function(snap){
+    return refDia.set(parseFloat(((snap.val()||0)+monto).toFixed(2)));
+  }).then(function(){
+    var ahora=new Date();
+    var fecha=ahora.toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    return db.ref('log').push({vendor:vendor,key:key,day:diaSeleccionado,monto:monto,tipo:tipo,banco:banco,ts:ahora.getTime(),fecha:fecha});
+  }).then(function(){
+    var hist=JSON.parse(localStorage.getItem('hist_agrosin')||'[]');
+    hist.unshift({vendor:vendor,day:diaSeleccionado,monto:monto,tipo:tipo,banco:banco,
+      fecha:new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}),ts:Date.now()});
+    localStorage.setItem('hist_agrosin',JSON.stringify(hist.slice(0,60)));
+    document.getElementById('inpMonto').value='';
+    document.getElementById('selTipo').value='';
+    document.getElementById('selBanco').value='';
+    mostrarAvance(vendor); renderHistorial();
+    toast('✅ $'+monto.toLocaleString('es-MX',{minimumFractionDigits:2})+' registrado','ok');
+  }).catch(function(e){ console.error(e); toast('❌ Error al guardar. Verifica internet.','err');
+  }).finally(function(){ btn.disabled=false; btn.innerHTML='<span>💾</span> Registrar Cobro'; });
+}
+
+function eliminar(i) {
+  var hoy=new Date().toDateString();
+  var hist=JSON.parse(localStorage.getItem('hist_agrosin')||'[]');
+  var deHoy=hist.filter(function(h){return new Date(h.ts).toDateString()===hoy;});
+  var item=deHoy[i]; if(!item)return;
+  if(!confirm('¿Eliminar este registro?\n'+item.vendor+' — $'+item.monto+'\n\nTambién se eliminará del tablero.'))return;
+  var key=(item.key)||item.vendor.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_').toUpperCase();
+  var refDia=db.ref('cobros/'+key+'/'+item.day);
+  refDia.once('value').then(function(snap){
+    var actual=parseFloat(snap.val()||0);
+    var nuevo=parseFloat((actual-item.monto).toFixed(2));
+    return nuevo<=0?refDia.remove():refDia.set(nuevo);
+  }).then(function(){return db.ref('log').orderByChild('ts').once('value');
+  }).then(function(snapLog){
+    var borrar=[];
+    snapLog.forEach(function(child){var r=child.val();
+      if((r.vendor||'').trim().toUpperCase()===(item.vendor||'').trim().toUpperCase()
+        &&r.day===item.day&&Math.abs((+r.monto||0)-(+item.monto||0))<0.01
+        &&Math.abs((+r.ts||0)-(+item.ts||0))<5000){borrar.push(child.key);}});
+    return Promise.all(borrar.map(function(k){return db.ref('log/'+k).remove();}));
+  }).then(function(){
+    hist.splice(hist.indexOf(item),1);
+    localStorage.setItem('hist_agrosin',JSON.stringify(hist));
+    renderHistorial(); mostrarAvance(item.vendor);
+    toast('🗑️ Registro eliminado','ok');
+  }).catch(function(e){console.error(e);toast('❌ Error al eliminar.','err');});
+}
+
+var etqDias={lun:'Lunes',mar:'Martes',mie:'Miércoles',jue:'Jueves',vie:'Viernes',sab:'Sábado'};
+function renderHistorial() {
+  var lista=document.getElementById('listaHist');
+  var resumen=document.getElementById('resumenHoy');
+  var hoy=new Date().toDateString();
+  var hist=JSON.parse(localStorage.getItem('hist_agrosin')||'[]');
+  var deHoy=hist.filter(function(h){return new Date(h.ts).toDateString()===hoy;});
+  if(!deHoy.length){lista.innerHTML='<div class="vacio">Sin registros hoy.</div>';resumen.innerHTML='';return;}
+  var totalHoy=deHoy.reduce(function(s,h){return s+(+h.monto||0);},0);
+  resumen.innerHTML='<div class="resumen-dia">💰 Total hoy: $'+totalHoy.toLocaleString('es-MX',{minimumFractionDigits:2})+' · '+deHoy.length+' registro(s)</div>';
+  lista.innerHTML=deHoy.map(function(h,i){
+    return '<div class="hist-item">'+
+      '<div class="hist-izq"><div class="hist-nombre">'+h.vendor+'</div>'+
+      '<div class="hist-meta">'+(etqDias[h.day]||h.day)+' · '+h.tipo+' · '+h.banco+' · '+h.fecha+'</div></div>'+
+      '<div class="hist-monto">$'+(+h.monto).toLocaleString('es-MX',{minimumFractionDigits:2})+'</div>'+
+      '<button type="button" class="hist-del" onclick="eliminar('+i+')">✕</button></div>';
+  }).join('');
+}
+var toastTimer;
+function toast(msg,tipo){var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+(tipo||'');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},2800);}
+renderHistorial();
+</script>
+</body>
+</html>
