@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Ferregama · Cobros</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --naranja:#F15A24;--marino:#07101F;--verde:#15803d;--rojo:#dc2626;
+  --amarillo:#d97706;--gris:#64748b;--borde:#E2E8F0;--fondo:#F4F5F7;
+  --blanco:#ffffff;--texto:#07101F;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Montserrat',sans-serif;background:var(--marino);display:flex;flex-direction:column}
+
+/* HEADER */
+.header{background:var(--marino);padding:16px 20px 12px;flex-shrink:0}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{color:var(--naranja);font-size:18px;font-weight:800;letter-spacing:1.5px}
+.brand span{color:#fff}
+.conn{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.5)}
+.cdot{width:7px;height:7px;border-radius:50%;background:#86efac;animation:pp 2s ease-in-out infinite}
+.cdot.off{background:#fca5a5;animation:none}
+@keyframes pp{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* PROGRESS */
+.progress{display:flex;align-items:center;gap:0}
+.prog-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.prog-step::after{content:'';position:absolute;top:12px;left:55%;width:90%;height:1.5px;background:rgba(255,255,255,0.15);z-index:0}
+.prog-step:last-child::after{display:none}
+.prog-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;position:relative;z-index:1;transition:all .3s}
+.prog-dot.pen{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.3)}
+.prog-dot.act{background:var(--naranja);color:#fff;box-shadow:0 0 0 3px rgba(241,90,36,0.3)}
+.prog-dot.done{background:var(--verde);color:#fff}
+.prog-lbl{font-size:9px;font-weight:600;margin-top:3px;transition:color .3s}
+.prog-lbl.pen{color:rgba(255,255,255,0.3)}
+.prog-lbl.act{color:var(--naranja)}
+.prog-lbl.done{color:rgba(255,255,255,0.5)}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--fondo);border-radius:20px 20px 0 0}
+
+/* PASOS */
+.step{display:none;padding:20px 18px 40px;min-height:100%}
+.step.act{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.step-title{font-size:20px;font-weight:800;color:var(--texto);margin-bottom:4px}
+.step-sub{font-size:13px;color:var(--gris);margin-bottom:20px}
+
+/* VENDEDOR SELECTOR */
+.vend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.vend-btn{background:var(--blanco);border:1.5px solid var(--borde);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none}
+.vend-btn.sel{border-color:var(--naranja);background:#FFF7ED}
+.vend-avatar{width:40px;height:40px;border-radius:50%;background:var(--fondo);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--gris);margin:0 auto 6px;transition:all .15s}
+.vend-btn.sel .vend-avatar{background:var(--naranja);color:#fff}
+.vend-nombre{font-size:11px;font-weight:700;color:var(--texto);line-height:1.2}
+
+/* ZONA LABEL */
+.zona-lbl{font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;display:flex;align-items:center;gap:6px}
+.zona-lbl::after{content:'';flex:1;height:0.5px;background:var(--borde)}
+
+/* CLIENTES */
+.cliente-search{width:100%;padding:13px 14px;border:1.5px solid var(--borde);border-radius:12px;font-size:14px;font-family:'Montserrat',sans-serif;background:var(--blanco);color:var(--texto);outline:none;margin-bottom:10px}
+.cliente-search:focus{border-color:var(--naranja)}
+.cliente-item{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--blanco);border:1.5px solid var(--borde);border-radius:12px;margin-bottom:6px;cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none}
+.cliente-item.sel{border-color:var(--naranja);background:#FFF7ED}
+.cliente-item:active{transform:scale(.98)}
+.cli-nombre{font-size:13px;font-weight:700;color:var(--texto)}
+.cli-folio{font-size:10px;color:var(--gris);font-family:monospace;margin-top:1px}
+.cli-saldo{font-size:15px;font-weight:800;color:var(--naranja);white-space:nowrap;margin-left:10px}
+.cli-badge{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;display:inline-block;margin-top:3px}
+.vencida{background:#FEE2E2;color:#991B1B}
+.pronto{background:#FEF3C7;color:#92400E}
+.ok{color:#166534;background:#DCFCE7}
+
+/* TIPO PAGO */
+.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.tipo-card{background:var(--blanco);border:2px solid var(--borde);border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none}
+.tipo-card:active{transform:scale(.97)}
+.tipo-card.sel{border-color:var(--naranja);background:#FFF7ED}
+.tipo-icon{font-size:28px;margin-bottom:6px;display:block}
+.tipo-nombre{font-size:12px;font-weight:700;color:var(--texto)}
+.tipo-card.sel .tipo-nombre{color:var(--naranja)}
+
+/* BANCO CHIPS */
+.banco-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+.banco-chip{padding:10px 14px;background:var(--blanco);border:1.5px solid var(--borde);border-radius:10px;font-size:12px;font-weight:700;color:var(--gris);cursor:pointer;transition:all .15s;-webkit-user-select:none;user-select:none}
+.banco-chip.sel{background:var(--marino);border-color:var(--marino);color:var(--naranja)}
+
+/* MONTO */
+.monto-display{text-align:center;padding:20px 0 16px;border-bottom:0.5px solid var(--borde);margin-bottom:16px}
+.monto-lbl{font-size:12px;color:var(--gris);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px}
+.monto-val{font-size:52px;font-weight:800;color:var(--texto);line-height:1;font-family:'Montserrat',sans-serif}
+.monto-val .peso{font-size:28px;color:var(--gris)}
+.monto-cliente-info{display:flex;align-items:center;justify-content:space-between;background:var(--fondo);border-radius:10px;padding:10px 14px;margin-bottom:14px}
+.mci-nombre{font-size:12px;font-weight:700;color:var(--texto)}
+.mci-saldo{font-size:11px;color:var(--gris);margin-top:1px}
+.mci-tipo{font-size:12px;font-weight:600;color:var(--naranja)}
+
+/* TECLADO */
+.teclado{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.key{background:var(--blanco);border:0.5px solid var(--borde);border-radius:12px;padding:16px;font-size:22px;font-weight:700;color:var(--texto);text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none;transition:all .1s;font-family:'Montserrat',sans-serif}
+.key:active{background:#F4F5F7;transform:scale(.95)}
+.key.del{background:#FEF2F2;color:var(--rojo);font-size:18px}
+.key.ok-btn{background:var(--naranja);color:#fff;border:none;font-size:16px}
+.key.ok-btn:active{background:#d94d1a}
+
+/* FOTO */
+.foto-area{border:2px dashed var(--borde);border-radius:14px;padding:22px 16px;text-align:center;cursor:pointer;margin-bottom:14px;background:var(--blanco);transition:border-color .15s}
+.foto-area:active{border-color:var(--naranja)}
+.foto-icon-big{font-size:40px;margin-bottom:8px;color:var(--naranja)}
+.foto-lbl{font-size:14px;font-weight:700;color:var(--texto);margin-bottom:3px}
+.foto-sub{font-size:11px;color:var(--gris)}
+.foto-preview{background:#f0fdf4;border:1.5px solid #BBF7D0;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.foto-preview-icon{font-size:24px;flex-shrink:0}
+.foto-preview-name{font-size:12px;font-weight:700;color:var(--verde)}
+.foto-preview-size{font-size:10px;color:var(--gris);margin-top:1px}
+.foto-quitar{background:none;border:none;color:var(--rojo);font-size:16px;cursor:pointer;margin-left:auto;padding:4px;flex-shrink:0}
+
+/* CONFIRMACION */
+.confirm-box{background:var(--blanco);border:0.5px solid var(--borde);border-radius:14px;overflow:hidden;margin-bottom:14px}
+.confirm-header{background:var(--marino);padding:12px 16px;display:flex;align-items:center;gap:8px}
+.confirm-header-title{font-size:13px;font-weight:700;color:#fff}
+.confirm-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:0.5px solid var(--fondo)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-k{font-size:12px;color:var(--gris)}
+.confirm-v{font-size:12px;font-weight:700;color:var(--texto)}
+.confirm-v.big{font-size:18px;color:var(--naranja)}
+
+/* BOTONES */
+.btn-primary{width:100%;padding:17px;background:var(--naranja);color:#fff;border:none;border-radius:14px;font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;-webkit-user-select:none;user-select:none;letter-spacing:0.3px}
+.btn-primary:active{transform:scale(.97);background:#d94d1a}
+.btn-primary:disabled{background:#94a3b8}
+.btn-secondary{width:100%;padding:14px;background:transparent;color:var(--gris);border:1.5px solid var(--borde);border-radius:14px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:all .15s}
+.btn-secondary:active{background:var(--fondo)}
+.btn-whats{width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:14px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:all .15s}
+.btn-whats:active{background:#1ea855}
+
+/* AVANCE */
+.avance-box{background:rgba(255,255,255,0.07);border-radius:12px;padding:13px 14px;margin-bottom:14px}
+.av-row{display:flex;justify-content:space-between;margin-bottom:6px}
+.av-lbl{font-size:10px;color:rgba(255,255,255,0.4);font-weight:600;text-transform:uppercase;letter-spacing:0.8px}
+.av-val{font-size:13px;font-weight:800;color:#fff}
+.av-val.verde{color:#86efac}
+.av-val.rojo{color:#fca5a5}
+.av-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;margin-top:4px}
+.av-fill{height:100%;border-radius:10px;transition:width .5s ease}
+
+/* EXITO */
+.exito-box{text-align:center;padding:30px 20px 20px}
+.exito-icon{font-size:60px;margin-bottom:12px;display:block}
+.exito-title{font-size:22px;font-weight:800;color:var(--verde);margin-bottom:6px}
+.exito-sub{font-size:13px;color:var(--gris);margin-bottom:20px}
+.exito-resumen{background:var(--blanco);border-radius:14px;border:0.5px solid var(--borde);padding:16px;text-align:left;margin-bottom:16px}
+.exito-monto{font-size:32px;font-weight:800;color:var(--naranja);text-align:center;margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--borde)}
+
+/* HISTORIAL */
+.hist-item{background:var(--blanco);border:0.5px solid var(--borde);border-radius:12px;padding:12px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px}
+.hi-left{flex:1;min-width:0}
+.hi-nombre{font-size:12px;font-weight:700;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi-meta{font-size:10px;color:var(--gris);margin-top:1px}
+.hi-estado{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;display:inline-block;margin-top:3px}
+.hi-est-foto{background:#DCFCE7;color:#166534}
+.hi-est-nofoto{background:#FEF3C7;color:#92400E}
+.hi-monto{font-size:16px;font-weight:800;color:var(--verde);white-space:nowrap;text-align:right}
+.resumen-total{background:var(--marino);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.rt-lbl{font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:0.8px}
+.rt-val{font-size:18px;font-weight:800;color:var(--naranja)}
+
+.zona-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--blanco);border:1.5px solid var(--borde);border-radius:10px;cursor:pointer;margin-bottom:6px;transition:all .15s;-webkit-user-select:none;user-select:none;text-align:left}
+.zona-btn.open{border-color:var(--naranja);border-radius:10px 10px 0 0;margin-bottom:0}
+.zona-left{display:flex;align-items:center;gap:10px}
+.zona-emoji{font-size:20px}
+.zona-nombre{font-size:13px;font-weight:700;color:var(--texto)}
+.zona-count{font-size:10px;color:var(--gris);margin-top:1px}
+.zona-arrow{font-size:12px;color:var(--gris);transition:transform .2s;flex-shrink:0}
+.zona-btn.open .zona-arrow{transform:rotate(180deg);color:var(--naranja)}
+.vend-panel{display:none;background:var(--blanco);border:1.5px solid var(--naranja);border-top:none;border-radius:0 0 10px 10px;padding:10px;margin-bottom:6px}
+.vend-panel.open{display:block}
+.btn-deposito{width:100%;padding:15px;background:var(--marino);color:var(--naranja);border:1.5px solid var(--naranja);border-radius:14px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;transition:all .15s}
+.btn-deposito:active{background:#0d1f35}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:0;left:0;right:0;padding:0 16px 24px;pointer-events:none;z-index:9999}
+.toast{background:var(--marino);color:#fff;padding:13px 20px;border-radius:14px;font-size:13px;font-weight:600;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;text-align:center}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{background:var(--verde)}
+.toast.err{background:var(--rojo)}
+.toast.warn{background:var(--amarillo)}
+
+/* MODAL DEPOSITO */
+.modal-bg{position:fixed;inset:0;background:rgba(7,16,31,0.75);z-index:1000;display:flex;align-items:flex-end}
+.modal-panel{background:var(--fondo);border-radius:20px 20px 0 0;padding:20px 18px 50px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:17px;font-weight:800;color:var(--texto);margin-bottom:3px}
+.modal-sub{font-size:12px;color:var(--gris);margin-bottom:16px}
+.dist-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid var(--borde)}
+.dist-row:last-child{border-bottom:none}
+.dist-info{flex:1;min-width:0;margin-right:10px}
+.dist-nombre{font-size:12px;font-weight:700;color:var(--texto);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dist-ref{font-size:10px;color:var(--gris)}
+.dist-inp{width:110px;padding:9px 10px;border:1.5px solid var(--borde);border-radius:8px;font-size:15px;font-weight:700;text-align:right;font-family:'Montserrat',sans-serif;background:var(--blanco);flex-shrink:0}
+.dist-inp:focus{border-color:var(--naranja);outline:none}
+.dist-resumen{display:flex;justify-content:space-between;padding:12px 0 0;font-weight:700;font-size:13px;margin-top:4px}
+.dist-ok{color:var(--verde)}
+.dist-mal{color:var(--rojo)}
+.campo{margin-bottom:12px}
+.campo label{display:block;font-size:11px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+.campo input,.campo select{width:100%;padding:13px 12px;border:1.5px solid var(--borde);border-radius:10px;font-size:15px;font-family:'Montserrat',sans-serif;font-weight:600;background:var(--blanco);color:var(--texto);outline:none;-webkit-appearance:none}
+.campo input:focus,.campo select:focus{border-color:var(--naranja)}
+
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="brand">FERRE<span>GAMA</span></div>
+    <div class="conn"><span class="cdot" id="cdot"></span><span id="clbl">Conectando…</span></div>
+  </div>
+  <div class="progress" id="progreso" style="display:none">
+    <div class="prog-step" id="ps1">
+      <div class="prog-dot act" id="pd1">1</div>
+      <div class="prog-lbl act" id="pl1">Yo</div>
+    </div>
+    <div class="prog-step" id="ps2">
+      <div class="prog-dot pen" id="pd2">2</div>
+      <div class="prog-lbl pen" id="pl2">Cliente</div>
+    </div>
+    <div class="prog-step" id="ps3">
+      <div class="prog-dot pen" id="pd3">3</div>
+      <div class="prog-lbl pen" id="pl3">Pago</div>
+    </div>
+    <div class="prog-step" id="ps4">
+      <div class="prog-dot pen" id="pd4">4</div>
+      <div class="prog-lbl pen" id="pl4">Foto</div>
+    </div>
+  </div>
+</div>
+
+<div class="content" id="content">
+
+  <!-- PASO 0: SELECCION VENDEDOR POR ZONA -->
+  <div class="step act" id="step0">
+    <div class="step-title">¿Quién cobró hoy?</div>
+    <div class="step-sub">Toca tu zona y selecciona tu nombre</div>
+
+    <div class="zona-btn" id="zb-cdmx" onclick="toggleZona('cdmx')">
+      <div class="zona-left"><span class="zona-emoji">🏙</span><div><div class="zona-nombre">CDMX</div><div class="zona-count">26 vendedores</div></div></div>
+      <span class="zona-arrow" id="za-cdmx">▼</span>
+    </div>
+    <div class="vend-panel" id="vp-cdmx"><div class="vend-grid" id="vg-cdmx"></div></div>
+
+    <div class="zona-btn" id="zb-morelos" onclick="toggleZona('morelos')">
+      <div class="zona-left"><span class="zona-emoji">🌿</span><div><div class="zona-nombre">Morelos</div><div class="zona-count">14 vendedores</div></div></div>
+      <span class="zona-arrow" id="za-morelos">▼</span>
+    </div>
+    <div class="vend-panel" id="vp-morelos"><div class="vend-grid" id="vg-morelos"></div></div>
+
+    <div class="zona-btn" id="zb-puebla" onclick="toggleZona('puebla')">
+      <div class="zona-left"><span class="zona-emoji">⛪</span><div><div class="zona-nombre">Puebla</div><div class="zona-count">8 vendedores</div></div></div>
+      <span class="zona-arrow" id="za-puebla">▼</span>
+    </div>
+    <div class="vend-panel" id="vp-puebla"><div class="vend-grid" id="vg-puebla"></div></div>
+  </div>
+
+  <!-- PASO 1: SELECCION VENDEDOR CONFIRMADA / AVANCE -->
+  <div class="step" id="step1">
+    <div id="avanceBox"></div>
+    <button class="btn-primary" id="btnNuevoCobro" onclick="irPaso(2)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Registrar nuevo cobro
+    </button>
+    <div id="historialBox" style="margin-top:16px"></div>
+  </div>
+
+  <!-- PASO 2: SELECCIONAR CLIENTE -->
+  <div class="step" id="step2">
+    <div class="step-title">¿A quién cobraste?</div>
+    <div class="step-sub">Selecciona el cliente de tu planilla</div>
+    <input type="text" class="cliente-search" id="clienteSearch" placeholder="Buscar cliente…" oninput="filtrarClientes(this.value)" autocomplete="off">
+    <div id="listaClientes"></div>
+    <button class="btn-secondary" onclick="irPaso(1)">← Regresar</button>
+  </div>
+
+  <!-- PASO 3: TIPO Y BANCO -->
+  <div class="step" id="step3">
+    <div class="monto-cliente-info">
+      <div>
+        <div class="mci-nombre" id="s3Cliente">Cliente seleccionado</div>
+        <div class="mci-saldo" id="s3Saldo"></div>
+      </div>
+    </div>
+    <div class="step-title">¿Cómo pagó?</div>
+    <div class="step-sub">Tipo de pago y banco</div>
+    <div class="tipo-grid">
+      <div class="tipo-card" onclick="selTipo('Transferencia',this)">
+        <span class="tipo-icon">🏦</span>
+        <div class="tipo-nombre">Transferencia</div>
+      </div>
+      <div class="tipo-card" onclick="selTipo('Efectivo',this)">
+        <span class="tipo-icon">💵</span>
+        <div class="tipo-nombre">Efectivo</div>
+      </div>
+      <div class="tipo-card" onclick="selTipo('Cheque',this)">
+        <span class="tipo-icon">📄</span>
+        <div class="tipo-nombre">Cheque</div>
+      </div>
+      <div class="tipo-card" onclick="selTipo('Terminal',this)">
+        <span class="tipo-icon">💳</span>
+        <div class="tipo-nombre">Terminal</div>
+      </div>
+      <div class="tipo-card" onclick="selTipo('Depósito',this)">
+        <span class="tipo-icon">🏧</span>
+        <div class="tipo-nombre">Depósito</div>
+      </div>
+      <div class="tipo-card" onclick="selTipo('Otro',this)">
+        <span class="tipo-icon">🔄</span>
+        <div class="tipo-nombre">Otro</div>
+      </div>
+    </div>
+    <div class="banco-grid" id="bancoGrid">
+      <div class="banco-chip" onclick="selBanco('BBVA',this)">BBVA</div>
+      <div class="banco-chip" onclick="selBanco('INBURSA',this)">Inbursa</div>
+      <div class="banco-chip" onclick="selBanco('SANTANDER',this)">Santander</div>
+      <div class="banco-chip" onclick="selBanco('BANAMEX',this)">Banamex</div>
+      <div class="banco-chip" onclick="selBanco('AZTECA',this)">Azteca</div>
+      <div class="banco-chip" onclick="selBanco('BANORTE',this)">Banorte</div>
+      <div class="banco-chip" onclick="selBanco('N/A',this)">N/A</div>
+    </div>
+    <button class="btn-primary" id="btnSiguientePago" onclick="irPaso(4)" disabled>Continuar →</button>
+    <button class="btn-secondary" onclick="irPaso(2)">← Regresar</button>
+  </div>
+
+  <!-- PASO 4: MONTO CON TECLADO -->
+  <div class="step" id="step4">
+    <div class="monto-cliente-info">
+      <div>
+        <div class="mci-nombre" id="s4Cliente"></div>
+        <div class="mci-saldo" id="s4Tipo"></div>
+      </div>
+      <div class="mci-tipo" id="s4Banco"></div>
+    </div>
+    <div class="monto-display">
+      <div class="monto-lbl">Monto cobrado</div>
+      <div class="monto-val"><span class="peso">$</span><span id="montoDisplay">0</span></div>
+    </div>
+    <div class="teclado">
+      <button class="key" onclick="tecla('1')">1</button>
+      <button class="key" onclick="tecla('2')">2</button>
+      <button class="key" onclick="tecla('3')">3</button>
+      <button class="key" onclick="tecla('4')">4</button>
+      <button class="key" onclick="tecla('5')">5</button>
+      <button class="key" onclick="tecla('6')">6</button>
+      <button class="key" onclick="tecla('7')">7</button>
+      <button class="key" onclick="tecla('8')">8</button>
+      <button class="key" onclick="tecla('9')">9</button>
+      <button class="key" onclick="tecla('.')">.</button>
+      <button class="key" onclick="tecla('0')">0</button>
+      <button class="key del" onclick="tecla('del')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+      </button>
+    </div>
+    <button class="btn-primary" id="btnConfirmarMonto" onclick="irPaso(5)" disabled>Continuar →</button>
+    <button class="btn-secondary" onclick="irPaso(3)">← Regresar</button>
+  </div>
+
+  <!-- PASO 5: FOTO Y CONFIRMACION -->
+  <div class="step" id="step5">
+    <div class="confirm-box">
+      <div class="confirm-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F15A24" stroke-width="2.5" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <div class="confirm-header-title">Confirma el cobro</div>
+      </div>
+      <div class="confirm-row"><span class="confirm-k">Cliente</span><span class="confirm-v" id="c5Cliente"></span></div>
+      <div class="confirm-row"><span class="confirm-k">Tipo</span><span class="confirm-v" id="c5Tipo"></span></div>
+      <div class="confirm-row"><span class="confirm-k">Banco</span><span class="confirm-v" id="c5Banco"></span></div>
+      <div class="confirm-row"><span class="confirm-k">Monto</span><span class="confirm-v big" id="c5Monto"></span></div>
+      <div class="confirm-row"><span class="confirm-k">Fecha</span><span class="confirm-v" id="c5Fecha"></span></div>
+    </div>
+    <div id="fotoWrap">
+      <div class="foto-area" onclick="document.getElementById('inputFoto').click()">
+        <div class="foto-icon-big">📷</div>
+        <div class="foto-lbl">Adjuntar comprobante</div>
+        <div class="foto-sub">Opcional — puedes agregarlo al depositar</div>
+      </div>
+    </div>
+    <input type="file" id="inputFoto" accept="image/*" capture="environment" onchange="onFoto(this)">
+    <button class="btn-primary" id="btnGuardar" onclick="guardar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Confirmar cobro
+    </button>
+    <button class="btn-secondary" onclick="irPaso(4)">← Regresar</button>
+  </div>
+
+  <!-- PASO 6: ÉXITO -->
+  <div class="step" id="step6">
+    <div class="exito-box">
+      <span class="exito-icon">✅</span>
+      <div class="exito-title">Cobro registrado</div>
+      <div class="exito-sub">Visible en el tablero en tiempo real</div>
+      <div class="exito-resumen">
+        <div class="exito-monto" id="exitoMonto"></div>
+        <div class="confirm-row"><span class="confirm-k">Cliente</span><span class="confirm-v" id="exitoCliente"></span></div>
+        <div class="confirm-row"><span class="confirm-k">Tipo</span><span class="confirm-v" id="exitoTipo"></span></div>
+        <div class="confirm-row"><span class="confirm-k">Banco</span><span class="confirm-v" id="exitoBanco"></span></div>
+      </div>
+      <button class="btn-whats" id="btnWhats">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Enviar comprobante al cliente
+      </button>
+      <button class="btn-primary" onclick="irPaso(1)" style="margin-top:8px">+ Registrar otro cobro</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL DEPÓSITO -->
+<div class="modal-bg" id="modalDep" style="display:none">
+  <div class="modal-panel">
+    <div class="modal-title">🏦 Depósito del día</div>
+    <div class="modal-sub">Sube el comprobante y distribuye el monto entre tus clientes de hoy.</div>
+    <div class="campo">
+      <label>Monto total del depósito</label>
+      <input type="number" id="montoDepTotal" inputmode="decimal" placeholder="0.00" oninput="validarDist()">
+    </div>
+    <div class="campo">
+      <label>Foto del comprobante</label>
+      <div id="fotoDepWrap">
+        <div class="foto-area" onclick="document.getElementById('inputFotoDep').click()" style="padding:14px">
+          <div style="font-size:24px;color:var(--naranja);margin-bottom:4px">📷</div>
+          <div style="font-size:12px;color:var(--gris)">Fotografiar comprobante del depósito</div>
+        </div>
+      </div>
+      <input type="file" id="inputFotoDep" accept="image/*" capture="environment" onchange="onFotoDep(this)">
+    </div>
+    <div class="campo">
+      <label>Distribución por cliente</label>
+      <div id="tablaDistribucion"></div>
+      <div class="dist-resumen" id="resumenDist"><span>Ingresa el monto total</span></div>
+    </div>
+    <button class="btn-primary" id="btnCerrarPlantilla" onclick="cerrarPlantilla()">✅ Confirmar y cerrar plantilla</button>
+    <button class="btn-secondary" onclick="document.getElementById('modalDep').style.display='none'">Cancelar</button>
+  </div>
+</div>
+
+<div class="toast-wrap"><div class="toast" id="toast"></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCcD-B0riHZ6s0FBuolv49ILCF2Rkf767o",
+  authDomain:"agrosin-cxc-prueba.firebaseapp.com",
+  databaseURL:"https://agrosin-cxc-prueba-default-rtdb.firebaseio.com",
+  projectId:"agrosin-cxc-prueba",
+  storageBucket:"agrosin-cxc-prueba.firebasestorage.app",
+  messagingSenderId:"793848064740",
+  appId:"1:793848064740:web:dca9cf77e9c3ff216a9af1"
+});
+var db=firebase.database(), storage=firebase.storage();
+
+var VENDEDORES={
+  CDMX:["ABRAHAM","ALFREDO","ANTONIO","CARLOS RONQUILLO","CASAUBON","CUAUHTEMOC","DANIEL M","ELVIRA","ESPERANZA","FELIX","FERNANDO GOMEZ","GERARDO HERNANDEZ","ISRAEL ODIN","JOSE LABASTIDA","JOSE RAMOS","JUAN OCAÑA","LUIS VENTURA","MANUEL TORRES","OLGA","OLGA ORTIZ","PATY GARCIA","RAYMUNDO LOPEZ","RICARDO BARRERA","ROBERTO","RODRIGO GONZALEZ","ROXANA"],
+  MORELOS:["DAVID VEGA","EMMANUEL","ENRIQUE","ENRIQUE ACAP","EVA JOAQUIN","IRMA HDZ","ISRAEL","JOSUE","JUAN CARLOS","MARTIN REYES","RICARDO FIGUEROA","ROBERTO HDEZ","ULISES","VICTOR HUGO"],
+  PUEBLA:["ALBERTO GARCIA","EMILIO","JORGE","JOSE HERNANDEZ","MARCO ANTONIO","RICARDO HDZ J","RICARDO PEREZ","ROSENDO"]
+};
+
+var CARTERA={"IRMA HDZ":462905.20,"ISRAEL ODIN":405521.69,"EMMANUEL":268948.82,"RAYMUNDO LOPEZ":152669.90,"CASAUBON":13295.48,"RICARDO HDZ J":285146.21,"EMILIO":226972.22,"DANIEL M":401498.68,"MANUEL TORRES":191033.35,"GERARDO HERNANDEZ":187597.76,"LUIS VENTURA":172611.76,"CARLOS RONQUILLO":172135.79,"MARTIN REYES":170449.94,"RICARDO BARRERA":163549.48,"EVA JOAQUIN":312575.67,"ROBERTO HDEZ":154555.51,"ENRIQUE":151442.23,"ANTONIO":139583.16,"ALBERTO GARCIA":127419.83,"VICTOR HUGO":122379.69,"ENRIQUE ACAP":117712.21,"ALFREDO":112005.14,"ROBERTO":106370.94,"FERNANDO GOMEZ":97919.65,"ABRAHAM":84804.71,"JUAN CARLOS":82124.45,"JOSE RAMOS":81370.62,"ELVIRA":80164.31,"MARCO ANTONIO":78487.25,"JORGE":66250.00,"ISRAEL":65241.23,"ROSENDO":64307.49,"JOSE HERNANDEZ":61511.69,"JUAN OCAÑA":54780.69,"ROXANA":52765.07,"RICARDO FIGUEROA":43625.71,"JOSUE":42614.15,"ULISES":40634.68,"RICARDO PEREZ":30816.91,"PATY GARCIA":23259.55,"OLGA":18960.32,"JOSE LABASTIDA":15245.84,"DAVID VEGA":12872.40,"CUAUHTEMOC":221123.07,"RODRIGO GONZALEZ":1455.02,"ESPERANZA":534.97,"FELIX":3227.99,"OLGA ORTIZ":8415.01};
+
+var CLIENTES_DEMO=[
+  {folio:"AG0044947",nombre:"Gabriel Martínez González",saldo:6898.08,dias:1},
+  {folio:"AG0042245",nombre:"Sergio Fernández Cadena",saldo:6083.67,dias:20},
+  {folio:"AG0049147",nombre:"Brian Alejandro Licona",saldo:5526.09,dias:0},
+  {folio:"AG0049654",nombre:"Rafael Martínez Vázquez",saldo:5372.98,dias:0},
+  {folio:"AG0043767",nombre:"Mónica García Hernández",saldo:154.00,dias:8},
+  {folio:"AG0048680",nombre:"Francisco Chávez Figueroa",saldo:1499.02,dias:0},
+  {folio:"AG0045979",nombre:"Fabiola López Solano",saldo:2338.99,dias:0},
+  {folio:"AG0046284",nombre:"Guadalupe López Pasondo",saldo:7771.19,dias:0},
+  {folio:"AG0049745",nombre:"Carlos Santos Lozano",saldo:10443.57,dias:0},
+  {folio:"AG0044073",nombre:"Guadalupe Lilia Becerra",saldo:8076.17,dias:6},
+];
+
+var vendedorSel="", clienteSel=null, tipoSel="", bancoSel="", montoStr="", fotoFile=null, fotoDepFile=null;
+var pasoActual=0;
+
+db.ref('.info/connected').on('value',function(s){
+  var ok=s.val()===true;
+  document.getElementById('cdot').className='cdot'+(ok?'':' off');
+  document.getElementById('clbl').textContent=ok?'En línea ✓':'Sin internet ✗';
+});
+
+function mkKey(v){return v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_').toUpperCase();}
+function fmtMoney(n){return n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function initiales(n){var p=n.split(' ');return(p[0]?p[0][0]:'')+(p[1]?p[1][0]:'');}
+
+function toggleZona(z){
+  var btn=document.getElementById('zb-'+z);
+  var panel=document.getElementById('vp-'+z);
+  var isOpen=panel.classList.contains('open');
+  document.querySelectorAll('.zona-btn').forEach(function(b){b.classList.remove('open');});
+  document.querySelectorAll('.vend-panel').forEach(function(p){p.classList.remove('open');});
+  if(!isOpen){btn.classList.add('open');panel.classList.add('open');}
+}
+
+function buildVendedores(){
+  var zonas={cdmx:VENDEDORES.CDMX,morelos:VENDEDORES.MORELOS,puebla:VENDEDORES.PUEBLA};
+  Object.keys(zonas).forEach(function(z){
+    var grid=document.getElementById('vg-'+z);
+    zonas[z].forEach(function(v){
+      var div=document.createElement('div');
+      div.className='vend-btn';
+      div.innerHTML='<div class="vend-avatar">'+initiales(v)+'</div><div class="vend-nombre">'+v+'</div>';
+      div.onclick=function(){selVendedorZona(v,div);};
+      grid.appendChild(div);
+    });
+  });
+}
+
+function selVendedorZona(v,el){
+  document.querySelectorAll('.vend-btn').forEach(function(b){b.classList.remove('sel');});
+  el.classList.add('sel');
+  vendedorSel=v;
+  setTimeout(function(){irPaso(1);},150);
+}
+
+
+
+function irPaso(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('act');});
+  document.getElementById('step'+n).classList.add('act');
+  document.getElementById('content').scrollTop=0;
+  pasoActual=n;
+  actualizarProgreso(n);
+  if(n===1) renderPaso1();
+  if(n===2) renderPaso2();
+  if(n===3){
+    document.getElementById('s3Cliente').textContent=clienteSel?clienteSel.nombre:'';
+    document.getElementById('s3Saldo').textContent=clienteSel?'Saldo: $'+fmtMoney(clienteSel.saldo):'';
+    document.getElementById('btnSiguientePago').disabled=!(tipoSel&&bancoSel);
+  }
+  if(n===4){
+    document.getElementById('s4Cliente').textContent=clienteSel?clienteSel.nombre:'';
+    document.getElementById('s4Tipo').textContent=tipoSel;
+    document.getElementById('s4Banco').textContent=bancoSel;
+    renderMonto();
+  }
+  if(n===5) renderConfirmacion();
+}
+
+function actualizarProgreso(n){
+  var prog=document.getElementById('progreso');
+  if(n===0){prog.style.display='none';return;}
+  prog.style.display='flex';
+  [1,2,3,4].forEach(function(i){
+    var pd=document.getElementById('pd'+i);
+    var pl=document.getElementById('pl'+i);
+    var pasoMapa={1:1,2:2,3:3,4:5};
+    var paso=pasoMapa[i];
+    if(n>paso){pd.className='prog-dot done';pd.innerHTML='✓';pl.className='prog-lbl done';}
+    else if(n===paso||n===paso+1&&i===3){pd.className='prog-dot act';pd.innerHTML=i;pl.className='prog-lbl act';}
+    else{pd.className='prog-dot pen';pd.innerHTML=i;pl.className='prog-lbl pen';}
+  });
+  if(n>=3){document.getElementById('pd3').className='prog-dot act';document.getElementById('pd3').textContent='3';document.getElementById('pl3').className='prog-lbl act';}
+  if(n>=5){document.getElementById('pd4').className='prog-dot act';document.getElementById('pd4').textContent='4';document.getElementById('pl4').className='prog-lbl act';}
+  if(n>=6){document.getElementById('pd4').className='prog-dot done';document.getElementById('pd4').innerHTML='✓';}
+}
+
+function renderPaso1(){
+  var key=mkKey(vendedorSel);
+  var cartera=CARTERA[vendedorSel]||0;
+  db.ref('cobros_v1/'+key).once('value').then(function(snap){
+    var cobros=snap.val()||{};
+    var cob=Object.values(cobros).reduce(function(s,v){return s+(v.monto||0);},0);
+    var fal=Math.max(0,cartera-cob);
+    var pct=cartera>0?Math.min(100,(cob/cartera)*100):0;
+    var colorFill=pct>=60?'#86efac':pct>=25?'#fde68a':'#fca5a5';
+    var nombre=vendedorSel.split(' ')[0];
+    nombre=nombre.charAt(0).toUpperCase()+nombre.slice(1).toLowerCase();
+    document.getElementById('avanceBox').innerHTML=
+      '<div style="background:var(--marino);border-radius:14px;padding:14px;margin-bottom:14px;color:#fff">'+
+      '<div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.6);margin-bottom:10px">Hola <strong style="color:var(--naranja)">'+nombre+'</strong> — tu avance:</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
+        '<div class="av-row" style="flex-direction:column;background:rgba(255,255,255,0.07);border-radius:8px;padding:10px"><div class="av-lbl">Cartera</div><div class="av-val">$'+Math.round(cartera).toLocaleString('es-MX')+'</div></div>'+
+        '<div class="av-row" style="flex-direction:column;background:rgba(255,255,255,0.07);border-radius:8px;padding:10px"><div class="av-lbl">Cobrado</div><div class="av-val verde">$'+Math.round(cob).toLocaleString('es-MX')+'</div></div>'+
+        '<div class="av-row" style="flex-direction:column;background:rgba(255,255,255,0.07);border-radius:8px;padding:10px"><div class="av-lbl">Por cobrar</div><div class="av-val rojo">$'+Math.round(fal).toLocaleString('es-MX')+'</div></div>'+
+        '<div class="av-row" style="flex-direction:column;background:rgba(255,255,255,0.07);border-radius:8px;padding:10px"><div class="av-lbl">Avance</div><div class="av-val" style="color:'+(pct>=60?'#86efac':pct>=25?'#fde68a':'#fca5a5')+'">'+pct.toFixed(1)+'%</div></div>'+
+      '</div>'+
+      '<div class="av-bar"><div class="av-fill" style="width:'+Math.round(pct)+'%;background:'+colorFill+'"></div></div>'+
+      '</div>';
+    renderHistorial();
+  }).catch(function(){renderHistorial();});
+}
+
+function renderHistorial(){
+  var key=mkKey(vendedorSel);
+  var hoy=new Date().toDateString();
+  var hist=JSON.parse(localStorage.getItem('hist_v2_'+key)||'[]');
+  var deHoy=hist.filter(function(h){return new Date(h.ts).toDateString()===hoy;});
+  var box=document.getElementById('historialBox');
+  if(!deHoy.length){box.innerHTML='<div style="text-align:center;color:var(--gris);font-size:13px;padding:12px 0">Sin cobros registrados hoy</div>';return;}
+  var total=deHoy.reduce(function(s,h){return s+(+h.monto||0);},0);
+  var html='<div class="resumen-total"><span class="rt-lbl">Total hoy</span><span class="rt-val">$'+fmtMoney(total)+'</span></div>';
+  html+=deHoy.map(function(h){
+    return '<div class="hist-item">'+
+      '<div class="hi-left">'+
+        '<div class="hi-nombre">'+h.cliente+'</div>'+
+        '<div class="hi-meta">'+h.tipo+' · '+h.banco+' · '+h.fechaHora+'</div>'+
+        '<span class="hi-estado '+(h.tieneFoto?'hi-est-foto':'hi-est-nofoto')+'">'+(h.tieneFoto?'📷 Con foto':'⏳ Sin foto')+'</span>'+
+      '</div>'+
+      '<div class="hi-monto">$'+fmtMoney(+h.monto)+'</div>'+
+    '</div>';
+  }).join('');
+  if(deHoy.length>0){
+    html+='<button class="btn-deposito" onclick="abrirDeposito()">🏦 Registrar depósito del día</button>';
+  }
+  box.innerHTML=html;
+}
+
+function renderPaso2(){
+  var clientes=CLIENTES_DEMO;
+  var q=document.getElementById('clienteSearch').value.toLowerCase();
+  var filtrados=q?clientes.filter(function(c){return c.nombre.toLowerCase().includes(q)||c.folio.toLowerCase().includes(q);}):clientes;
+  var lista=document.getElementById('listaClientes');
+  if(!filtrados.length){lista.innerHTML='<div style="text-align:center;color:var(--gris);font-size:13px;padding:20px">Sin resultados</div>';return;}
+  lista.innerHTML=filtrados.map(function(c){
+    var badge=c.dias>7?'<span class="cli-badge vencida">'+c.dias+' días</span>':c.dias>0?'<span class="cli-badge pronto">'+c.dias+' día'+(c.dias>1?'s':'')+'</span>':'<span class="cli-badge ok">Al corriente</span>';
+    var sel=clienteSel&&clienteSel.folio===c.folio?' sel':'';
+    return '<div class="cliente-item'+sel+'" onclick="selCliente('+JSON.stringify(c)+')">'+
+      '<div class="cli-left" style="flex:1;min-width:0">'+
+        '<div class="cli-nombre">'+c.nombre+'</div>'+
+        '<div class="cli-folio">'+c.folio+'</div>'+
+        badge+
+      '</div>'+
+      '<div class="cli-saldo">$'+fmtMoney(c.saldo)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function filtrarClientes(q){
+  renderPaso2();
+}
+
+function selCliente(c){
+  clienteSel=c;
+  setTimeout(function(){irPaso(3);},150);
+}
+
+function selTipo(t,el){
+  tipoSel=t;
+  document.querySelectorAll('.tipo-card').forEach(function(c){c.classList.remove('sel');});
+  el.classList.add('sel');
+  document.getElementById('btnSiguientePago').disabled=!bancoSel;
+}
+
+function selBanco(b,el){
+  bancoSel=b;
+  document.querySelectorAll('.banco-chip').forEach(function(c){c.classList.remove('sel');});
+  el.classList.add('sel');
+  document.getElementById('btnSiguientePago').disabled=!tipoSel;
+}
+
+function tecla(k){
+  if(k==='del'){montoStr=montoStr.slice(0,-1);}
+  else if(k==='.'&&montoStr.includes('.')){return;}
+  else if(montoStr.length>=9){return;}
+  else{montoStr+=k;}
+  renderMonto();
+}
+
+function renderMonto(){
+  var val=montoStr||'0';
+  document.getElementById('montoDisplay').textContent=parseFloat(val||0).toLocaleString('es-MX',{minimumFractionDigits:val.includes('.')?2:0});
+  document.getElementById('btnConfirmarMonto').disabled=!montoStr||parseFloat(montoStr)<=0;
+}
+
+function renderConfirmacion(){
+  var monto=parseFloat(montoStr||0);
+  document.getElementById('c5Cliente').textContent=clienteSel?clienteSel.nombre:'';
+  document.getElementById('c5Tipo').textContent=tipoSel;
+  document.getElementById('c5Banco').textContent=bancoSel;
+  document.getElementById('c5Monto').textContent='$'+fmtMoney(monto);
+  document.getElementById('c5Fecha').textContent=new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+function onFoto(input){
+  var f=input.files[0]; if(!f) return;
+  fotoFile=f;
+  document.getElementById('fotoWrap').innerHTML=
+    '<div class="foto-preview">'+
+    '<span class="foto-preview-icon">📷</span>'+
+    '<div><div class="foto-preview-name">'+f.name+'</div><div class="foto-preview-size">'+Math.round(f.size/1024)+' KB · Toca para cambiar</div></div>'+
+    '<button class="foto-quitar" onclick="quitarFoto()">✕</button>'+
+    '</div>';
+}
+
+function quitarFoto(){
+  fotoFile=null;
+  document.getElementById('fotoWrap').innerHTML=
+    '<div class="foto-area" onclick="document.getElementById(\'inputFoto\').click()">'+
+    '<div class="foto-icon-big">📷</div><div class="foto-lbl">Adjuntar comprobante</div>'+
+    '<div class="foto-sub">Opcional — puedes agregarlo al depositar</div></div>';
+  document.getElementById('inputFoto').value='';
+}
+
+function guardar(){
+  var btn=document.getElementById('btnGuardar');
+  btn.disabled=true; btn.innerHTML='⏳ Guardando…';
+  var monto=parseFloat(montoStr||0);
+  var key=mkKey(vendedorSel);
+  var ts=Date.now();
+  var fechaHora=new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+  var reg={vendor:vendedorSel,cliente:clienteSel.nombre,folio:clienteSel.folio,monto:monto,tipo:tipoSel,banco:bancoSel,ts:ts,fechaHora:fechaHora,tieneFoto:!!fotoFile,estado:'pendiente'};
+  var promises=[db.ref('cobros_v1/'+key+'/'+ts).set(reg)];
+  var diaHoy=['','lun','mar','mie','jue','vie','sab'][new Date().getDay()];
+  if(diaHoy){
+    var refDia=db.ref('cobros/'+key+'/'+diaHoy);
+    promises.push(refDia.once('value').then(function(s){return refDia.set(parseFloat(((s.val()||0)+monto).toFixed(2)));}));
+  }
+  Promise.all(promises).then(function(){
+    if(fotoFile){
+      var ref=storage.ref('comprobantes/'+key+'/'+ts+'.jpg');
+      return ref.put(fotoFile).then(function(){return ref.getDownloadURL();}).then(function(url){return db.ref('cobros_v1/'+key+'/'+ts+'/fotoURL').set(url);});
+    }
+  }).then(function(){
+    var hist=JSON.parse(localStorage.getItem('hist_v2_'+key)||'[]');
+    hist.unshift({...reg,cobId:ts});
+    localStorage.setItem('hist_v2_'+key,JSON.stringify(hist.slice(0,100)));
+    document.getElementById('exitoMonto').textContent='$'+fmtMoney(monto);
+    document.getElementById('exitoCliente').textContent=clienteSel.nombre;
+    document.getElementById('exitoTipo').textContent=tipoSel;
+    document.getElementById('exitoBanco').textContent=bancoSel;
+    var linkComp='https://erickyaircr78-code.github.io/agrosin-cxc/verificar/'+key+'_'+ts;
+    document.getElementById('btnWhats').onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent('Hola, tu comprobante de pago Ferregama: '+linkComp),'_blank');};
+    tipoSel=''; bancoSel=''; montoStr=''; clienteSel=null; fotoFile=null;
+    document.querySelectorAll('.tipo-card').forEach(function(c){c.classList.remove('sel');});
+    document.querySelectorAll('.banco-chip').forEach(function(c){c.classList.remove('sel');});
+    quitarFoto();
+    irPaso(6);
+  }).catch(function(e){console.error(e);toast('Error al guardar','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Confirmar cobro';});
+}
+
+function abrirDeposito(){
+  var key=mkKey(vendedorSel);
+  var hoy=new Date().toDateString();
+  var hist=JSON.parse(localStorage.getItem('hist_v2_'+key)||'[]');
+  var deHoy=hist.filter(function(h){return new Date(h.ts).toDateString()===hoy;});
+  if(!deHoy.length){toast('Sin cobros del día','warn');return;}
+  var tabla=document.getElementById('tablaDistribucion');
+  tabla.innerHTML=deHoy.map(function(h,i){
+    return '<div class="dist-row">'+
+      '<div class="dist-info"><div class="dist-nombre">'+h.cliente+'</div><div class="dist-ref">'+h.tipo+' · $'+fmtMoney(+h.monto)+'</div></div>'+
+      '<input class="dist-inp" type="number" id="di_'+i+'" value="'+h.monto.toFixed(2)+'" oninput="validarDist()" inputmode="decimal">'+
+    '</div>';
+  }).join('');
+  document.getElementById('modalDep').style.display='flex';
+  validarDist();
+}
+
+function validarDist(){
+  var key=mkKey(vendedorSel);
+  var hoy=new Date().toDateString();
+  var hist=JSON.parse(localStorage.getItem('hist_v2_'+key)||'[]');
+  var deHoy=hist.filter(function(h){return new Date(h.ts).toDateString()===hoy;});
+  var total=parseFloat(document.getElementById('montoDepTotal').value)||0;
+  var suma=0;
+  deHoy.forEach(function(h,i){var inp=document.getElementById('di_'+i);if(inp)suma+=parseFloat(inp.value)||0;});
+  suma=parseFloat(suma.toFixed(2));
+  var res=document.getElementById('resumenDist');
+  var diff=parseFloat((total-suma).toFixed(2));
+  if(!total){res.className='dist-resumen';res.innerHTML='<span>Ingresa el monto total</span>';}
+  else if(Math.abs(diff)<0.01){res.className='dist-resumen dist-ok';res.innerHTML='<span>✓ Los montos cuadran</span><span>$'+fmtMoney(total)+'</span>';}
+  else if(diff>0){res.className='dist-resumen dist-mal';res.innerHTML='<span>⚠️ Faltan por distribuir</span><span>$'+fmtMoney(diff)+'</span>';}
+  else{res.className='dist-resumen dist-mal';res.innerHTML='<span>⚠️ Distribuiste de más</span><span>$'+fmtMoney(Math.abs(diff))+'</span>';}
+}
+
+function onFotoDep(input){
+  var f=input.files[0]; if(!f) return;
+  fotoDepFile=f;
+  document.getElementById('fotoDepWrap').innerHTML=
+    '<div class="foto-preview"><span class="foto-preview-icon">📷</span>'+
+    '<div><div class="foto-preview-name">'+f.name+'</div><div class="foto-preview-size">'+Math.round(f.size/1024)+' KB</div></div>'+
+    '<button class="foto-quitar" onclick="fotoDepFile=null;document.getElementById(\'fotoDepWrap\').innerHTML=\'<div class=\\\"foto-area\\\" onclick=\\\"document.getElementById(\\\\\\\"inputFotoDep\\\\\\\").click()\\\"><div style=\\\"font-size:24px;color:var(--naranja);margin-bottom:4px\\\">📷</div><div style=\\\"font-size:12px;color:var(--gris)\\\">Fotografiar comprobante del depósito</div></div>\';document.getElementById(\'inputFotoDep\').value=\'\'">✕</button>'+
+    '</div>';
+}
+
+function cerrarPlantilla(){
+  var total=parseFloat(document.getElementById('montoDepTotal').value)||0;
+  if(!total){toast('Ingresa el monto del depósito','err');return;}
+  var key=mkKey(vendedorSel);
+  var hoy=new Date().toDateString();
+  var hist=JSON.parse(localStorage.getItem('hist_v2_'+key)||'[]');
+  var deHoy=hist.filter(function(h){return new Date(h.ts).toDateString()===hoy;});
+  var suma=0;
+  deHoy.forEach(function(h,i){var inp=document.getElementById('di_'+i);if(inp)suma+=parseFloat(inp.value)||0;});
+  if(Math.abs(total-parseFloat(suma.toFixed(2)))>0.01){toast('Los montos no cuadran','err');return;}
+  var btn=document.getElementById('btnCerrarPlantilla');
+  btn.disabled=true;btn.innerHTML='⏳ Guardando…';
+  var ts=Date.now();
+  var distData={};
+  deHoy.forEach(function(h,i){var inp=document.getElementById('di_'+i);distData[h.cobId||('c'+i)]={cliente:h.cliente,montoDistribuido:parseFloat(inp?inp.value:h.monto)};});
+  var depData={vendor:vendedorSel,monto:total,distribucion:distData,ts:ts,fecha:new Date().toLocaleDateString('es-MX'),tieneFoto:!!fotoDepFile};
+  db.ref('depositos_v1/'+key+'/'+ts).set(depData).then(function(){
+    if(fotoDepFile){var r=storage.ref('depositos/'+key+'/'+ts+'.jpg');return r.put(fotoDepFile).then(function(){return r.getDownloadURL();}).then(function(u){return db.ref('depositos_v1/'+key+'/'+ts+'/fotoURL').set(u);});}
+  }).then(function(){
+    document.getElementById('modalDep').style.display='none';
+    renderHistorial();
+    toast('✅ Plantilla cerrada. ¡Buen trabajo!','ok');
+  }).catch(function(e){console.error(e);toast('Error al guardar','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML='✅ Confirmar y cerrar plantilla';});
+}
+
+var toastTimer;
+function toast(msg,tipo){var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+(tipo||'');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},3000);}
+
+buildVendedores();
+</script>
+</body>
+</html>
