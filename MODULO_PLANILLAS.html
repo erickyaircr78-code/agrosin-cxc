@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Ferregama · Planillas</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--naranja:#F15A24;--marino:#07101F;--verde:#15803d;--rojo:#dc2626;--amarillo:#d97706;--gris:#64748b;--borde:#E2E8F0;--fondo:#F4F5F7;--blanco:#fff;--texto:#07101F}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Montserrat',sans-serif;background:var(--marino);display:flex;flex-direction:column}
+.header{background:var(--marino);padding:16px 20px 14px;flex-shrink:0}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.brand{color:var(--naranja);font-size:18px;font-weight:800;letter-spacing:1.5px}
+.brand span{color:#fff}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.4)}
+.conn{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:rgba(255,255,255,0.5)}
+.cdot{width:7px;height:7px;border-radius:50%;background:#86efac;animation:pp 2s ease-in-out infinite}
+.cdot.off{background:#fca5a5;animation:none}
+@keyframes pp{0%,100%{opacity:1}50%{opacity:.3}}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--fondo);border-radius:20px 20px 0 0;padding:18px 16px 50px}
+.step{display:none;animation:fadeUp .25s ease}
+.step.act{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page-title{font-size:20px;font-weight:800;color:var(--texto);margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--gris);margin-bottom:18px}
+
+/* USUARIO SELECTOR */
+.user-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.user-btn{background:var(--blanco);border:1.5px solid var(--borde);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .15s}
+.user-btn.sel{border-color:var(--naranja);background:#FFF7ED}
+.user-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--gris);background:var(--fondo);margin:0 auto 6px;transition:all .15s}
+.user-btn.sel .user-avatar{background:var(--naranja);color:#fff}
+.user-nombre{font-size:12px;font-weight:700;color:var(--texto)}
+.user-zona{font-size:10px;color:var(--gris)}
+
+/* UPLOAD */
+.upload-area{border:2.5px dashed var(--borde);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;background:var(--blanco);transition:border-color .15s;margin-bottom:14px}
+.upload-area:active{border-color:var(--naranja)}
+.upload-icon{font-size:44px;margin-bottom:10px}
+.upload-title{font-size:15px;font-weight:700;color:var(--texto);margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--gris)}
+.upload-preview{background:#f0fdf4;border:1.5px solid #BBF7D0;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.upload-preview-icon{font-size:24px;flex-shrink:0}
+.upload-preview-name{font-size:12px;font-weight:700;color:var(--verde)}
+.upload-preview-sub{font-size:10px;color:var(--gris);margin-top:1px}
+.upload-quitar{background:none;border:none;color:var(--rojo);font-size:16px;cursor:pointer;margin-left:auto;padding:4px;flex-shrink:0}
+
+/* PROCESANDO */
+.procesando{background:var(--marino);border-radius:14px;padding:18px;text-align:center;margin-bottom:14px;color:#fff}
+.proc-spinner{font-size:32px;margin-bottom:8px;animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.proc-titulo{font-size:14px;font-weight:700;margin-bottom:4px}
+.proc-sub{font-size:11px;color:rgba(255,255,255,0.5)}
+.proc-barra{height:4px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden;margin-top:12px}
+.proc-fill{height:100%;background:var(--naranja);border-radius:10px;transition:width .5s ease}
+
+/* RESULTADO */
+.result-header{background:var(--marino);border-radius:14px;padding:14px 16px;margin-bottom:12px;color:#fff}
+.rh-vendedor{font-size:18px;font-weight:800;color:var(--naranja);margin-bottom:2px}
+.rh-hoja{font-size:12px;color:rgba(255,255,255,0.5)}
+.rh-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.rh-stat{background:rgba(255,255,255,0.07);border-radius:8px;padding:10px;text-align:center}
+.rh-stat-val{font-size:18px;font-weight:800;color:#fff}
+.rh-stat-lbl{font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.fact-item{background:var(--blanco);border:0.5px solid var(--borde);border-radius:10px;padding:11px 13px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.fi-folio{font-size:10px;font-weight:700;color:var(--gris);font-family:monospace}
+.fi-nombre{font-size:12px;font-weight:700;color:var(--texto);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.fi-saldo{font-size:14px;font-weight:800;color:var(--naranja);white-space:nowrap;margin-left:8px}
+.fi-badge{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:600;display:inline-block;margin-top:2px}
+.vencida{background:#FEE2E2;color:#991B1B}
+.pronto{background:#FEF3C7;color:#92400E}
+.corriente{background:#DCFCE7;color:#166534}
+
+/* PLANILLAS ACTIVAS */
+.planilla-card{background:var(--blanco);border:0.5px solid var(--borde);border-radius:12px;padding:13px 14px;margin-bottom:8px;overflow:hidden}
+.pc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.pc-vendedor{font-size:13px;font-weight:700;color:var(--texto)}
+.pc-hoja{font-size:10px;color:var(--gris);font-family:monospace}
+.pc-estado{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+.pc-abierta{background:#FEF3C7;color:#92400E}
+.pc-cerrada{background:#DCFCE7;color:#166534}
+.pc-stats{display:flex;gap:12px}
+.pc-stat{font-size:11px;color:var(--gris)}
+.pc-stat strong{color:var(--texto)}
+.pc-bar{height:3px;background:var(--fondo);border-radius:10px;overflow:hidden;margin-top:8px}
+.pc-bar-fill{height:100%;background:var(--naranja);border-radius:10px}
+
+/* BOTONES */
+.btn-primary{width:100%;padding:16px;background:var(--naranja);color:#fff;border:none;border-radius:14px;font-family:'Montserrat',sans-serif;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-bottom:8px}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{background:#94a3b8}
+.btn-secondary{width:100%;padding:13px;background:transparent;color:var(--gris);border:1.5px solid var(--borde);border-radius:14px;font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-secondary:active{background:var(--fondo)}
+.btn-nav{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--fondo);border:0.5px solid var(--borde);border-radius:20px;font-size:12px;font-weight:600;color:var(--gris);cursor:pointer;margin-bottom:14px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:0;left:0;right:0;padding:0 16px 24px;pointer-events:none;z-index:9999}
+.toast{background:var(--marino);color:#fff;padding:13px 20px;border-radius:14px;font-size:13px;font-weight:600;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none;text-align:center}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{background:var(--verde)}
+.toast.err{background:var(--rojo)}
+.toast.warn{background:var(--amarillo)}
+input[type=file]{display:none}
+.divider{border:none;border-top:.5px solid var(--borde);margin:10px 0}
+.section-lbl{font-size:10px;font-weight:700;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="brand">FERRE<span>GAMA</span></div>
+    <div class="conn"><span class="cdot" id="cdot"></span><span id="clbl">Conectando…</span></div>
+  </div>
+  <div class="header-sub">Módulo de Planillas · Lupe · Cari · Nancy · Samanta · Karen · Jennifer</div>
+</div>
+
+<div class="content">
+
+  <!-- PASO 0: QUIEN ERES -->
+  <div class="step act" id="step0">
+    <div class="page-title">¿Quién eres?</div>
+    <div class="page-sub">Selecciona tu nombre para continuar</div>
+    <div class="user-grid">
+      <div class="user-btn" onclick="selUsuario('LUPE','CDMX',this)">
+        <div class="user-avatar">LU</div>
+        <div class="user-nombre">Lupe</div>
+        <div class="user-zona">CDMX</div>
+      </div>
+      <div class="user-btn" onclick="selUsuario('CARI','CDMX',this)">
+        <div class="user-avatar">CA</div>
+        <div class="user-nombre">Cari</div>
+        <div class="user-zona">CDMX</div>
+      </div>
+      <div class="user-btn" onclick="selUsuario('NANCY','PUEBLA',this)">
+        <div class="user-avatar">NA</div>
+        <div class="user-nombre">Nancy</div>
+        <div class="user-zona">Puebla</div>
+      </div>
+      <div class="user-btn" onclick="selUsuario('SAMANTA','PUEBLA',this)">
+        <div class="user-avatar">SA</div>
+        <div class="user-nombre">Samanta</div>
+        <div class="user-zona">Puebla</div>
+      </div>
+      <div class="user-btn" onclick="selUsuario('KAREN','MORELOS',this)">
+        <div class="user-avatar">KA</div>
+        <div class="user-nombre">Karen</div>
+        <div class="user-zona">Morelos</div>
+      </div>
+      <div class="user-btn" onclick="selUsuario('JENNIFER','MORELOS',this)">
+        <div class="user-avatar">JE</div>
+        <div class="user-nombre">Jennifer</div>
+        <div class="user-zona">Morelos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASO 1: PLANILLAS ACTIVAS + CARGAR NUEVA -->
+  <div class="step" id="step1">
+    <div class="btn-nav" onclick="irPaso(0)">← <span id="usuarioNombreNav">Cambiar</span></div>
+    <div class="page-title">Planillas activas</div>
+    <div class="page-sub" id="subtituloZona">Tus vendedores</div>
+    <div id="planillasActivas"><div style="text-align:center;color:var(--gris);font-size:13px;padding:20px 0">Cargando planillas…</div></div>
+    <div class="divider"></div>
+    <div class="section-lbl">Nueva planilla</div>
+    <button class="btn-primary" onclick="irPaso(2)">
+      📄 Cargar nueva planilla de Microsip
+    </button>
+  </div>
+
+  <!-- PASO 2: SUBIR PDF -->
+  <div class="step" id="step2">
+    <div class="btn-nav" onclick="irPaso(1)">← Regresar</div>
+    <div class="page-title">Cargar planilla</div>
+    <div class="page-sub">Sube el PDF de la Hoja de entrega de documentos de Microsip</div>
+    <div id="uploadWrap">
+      <div class="upload-area" onclick="document.getElementById('inputPDF').click()">
+        <div class="upload-icon">📄</div>
+        <div class="upload-title">Toca para subir el PDF</div>
+        <div class="upload-sub">Hoja de entrega de documentos de Microsip</div>
+      </div>
+    </div>
+    <input type="file" id="inputPDF" accept="application/pdf" onchange="onPDF(this)">
+    <button class="btn-secondary" onclick="irPaso(1)">Cancelar</button>
+  </div>
+
+  <!-- PASO 3: PROCESANDO -->
+  <div class="step" id="step3">
+    <div class="procesando">
+      <div class="proc-spinner">⚙️</div>
+      <div class="proc-titulo">Leyendo planilla de Microsip…</div>
+      <div class="proc-sub" id="procSub">Extrayendo facturas del PDF</div>
+      <div class="proc-barra"><div class="proc-fill" id="procFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- PASO 4: REVISION Y CONFIRMAR -->
+  <div class="step" id="step4">
+    <div class="btn-nav" onclick="irPaso(2)">← Regresar</div>
+    <div id="resultHeader"></div>
+    <div class="section-lbl">Facturas extraídas — verifica antes de activar</div>
+    <div id="listaFacturas"></div>
+    <button class="btn-primary" id="btnActivar" onclick="activarPlanilla()">
+      ✅ Activar planilla para el vendedor
+    </button>
+    <button class="btn-secondary" onclick="irPaso(2)">Cargar otro PDF</button>
+  </div>
+
+  <!-- PASO 5: ÉXITO -->
+  <div class="step" id="step5">
+    <div style="text-align:center;padding:30px 10px 20px">
+      <div style="font-size:56px;margin-bottom:12px">✅</div>
+      <div style="font-size:22px;font-weight:800;color:var(--verde);margin-bottom:6px">Planilla activada</div>
+      <div style="font-size:13px;color:var(--gris);margin-bottom:20px" id="exitoSub">El vendedor ya ve sus facturas en la app</div>
+      <div style="background:var(--marino);border-radius:14px;padding:14px;color:#fff;margin-bottom:16px;text-align:left" id="exitoResumen"></div>
+      <button class="btn-primary" onclick="irPaso(1)">+ Cargar otra planilla</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-wrap"><div class="toast" id="toast"></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+firebase.initializeApp({
+  apiKey:"AIzaSyCcD-B0riHZ6s0FBuolv49ILCF2Rkf767o",
+  authDomain:"agrosin-cxc-prueba.firebaseapp.com",
+  databaseURL:"https://agrosin-cxc-prueba-default-rtdb.firebaseio.com",
+  projectId:"agrosin-cxc-prueba",
+  storageBucket:"agrosin-cxc-prueba.firebasestorage.app",
+  messagingSenderId:"793848064740",
+  appId:"1:793848064740:web:dca9cf77e9c3ff216a9af1"
+});
+var db=firebase.database();
+
+var usuarioSel='', zonaSel='', pdfData=null;
+
+db.ref('.info/connected').on('value',function(s){
+  var ok=s.val()===true;
+  document.getElementById('cdot').className='cdot'+(ok?'':' off');
+  document.getElementById('clbl').textContent=ok?'En línea ✓':'Sin internet ✗';
+});
+
+var ZONAS_VENDEDORES={
+  CDMX:["ABRAHAM","ALFREDO","ANTONIO","CARLOS RONQUILLO","CASAUBON","CUAUHTEMOC","DANIEL M","ELVIRA","ESPERANZA","FELIX","FERNANDO GOMEZ","GERARDO HERNANDEZ","ISRAEL ODIN","JOSE LABASTIDA","JOSE RAMOS","JUAN OCAÑA","LUIS VENTURA","MANUEL TORRES","OLGA","OLGA ORTIZ","PATY GARCIA","RAYMUNDO LOPEZ","RICARDO BARRERA","ROBERTO","RODRIGO GONZALEZ","ROXANA"],
+  MORELOS:["DAVID VEGA","EMMANUEL","ENRIQUE","ENRIQUE ACAP","EVA JOAQUIN","IRMA HDZ","ISRAEL","JOSUE","JUAN CARLOS","MARTIN REYES","RICARDO FIGUEROA","ROBERTO HDEZ","ULISES","VICTOR HUGO"],
+  PUEBLA:["ALBERTO GARCIA","EMILIO","JORGE","JOSE HERNANDEZ","MARCO ANTONIO","RICARDO HDZ J","RICARDO PEREZ","ROSENDO"]
+};
+
+function fmtMoney(n){return(+n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function mkKey(v){return v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_').toUpperCase();}
+function getZonaVendedor(vendor){
+  for(var z in ZONAS_VENDEDORES){
+    if(ZONAS_VENDEDORES[z].indexOf(vendor)>=0) return z;
+  }
+  return zonaSel; // fallback a zona del usuario logueado
+}
+
+function selUsuario(nombre,zona,el){
+  document.querySelectorAll('.user-btn').forEach(function(b){b.classList.remove('sel');});
+  el.classList.add('sel');
+  usuarioSel=nombre; zonaSel=zona;
+  setTimeout(function(){irPaso(1);},150);
+}
+
+function irPaso(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('act');});
+  document.getElementById('step'+n).classList.add('act');
+  document.querySelector('.content').scrollTop=0;
+  if(n===1) renderPlanillasActivas();
+}
+
+function renderPlanillasActivas(){
+  document.getElementById('usuarioNombreNav').textContent=usuarioSel;
+  document.getElementById('subtituloZona').textContent='Zona '+zonaSel+' · '+
+    (ZONAS_VENDEDORES[zonaSel]?ZONAS_VENDEDORES[zonaSel].length:0)+' vendedores';
+  var vendedores=ZONAS_VENDEDORES[zonaSel]||[];
+  var box=document.getElementById('planillasActivas');
+  if(!vendedores.length){box.innerHTML='<div style="color:var(--gris);font-size:13px;text-align:center;padding:16px">Sin vendedores en esta zona</div>';return;}
+  var promises=vendedores.map(function(v){
+    var key=mkKey(v);
+    return db.ref('planillas/'+zonaSel+'/'+key).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
+      var data=snap.val();
+      if(!data) return {vendor:v,hoja:null};
+      var hoja=Object.values(data)[0];
+      return {vendor:v,hoja:hoja};
+    });
+  });
+  Promise.all(promises).then(function(results){
+    var activas=results.filter(function(r){return r.hoja&&r.hoja.estado==='activa';});
+    var sinPlanilla=results.filter(function(r){return !r.hoja||r.hoja.estado!=='activa';});
+    var html='';
+    if(activas.length){
+      html+='<div class="section-lbl">Con planilla activa ('+activas.length+')</div>';
+      html+=activas.map(function(r){
+        var h=r.hoja;
+        var total=h.facturas?Object.keys(h.facturas).length:0;
+        var cobradas=h.cobradas||0;
+        var pct=total>0?Math.round(cobradas/total*100):0;
+        return '<div class="planilla-card">'+
+          '<div class="pc-head">'+
+            '<div><div class="pc-vendedor">'+r.vendor+'</div><div class="pc-hoja">Hoja '+h.folio_hoja+' · '+h.fecha+'</div></div>'+
+            '<span class="pc-estado pc-abierta">Abierta</span>'+
+          '</div>'+
+          '<div class="pc-stats">'+
+            '<span class="pc-stat"><strong>'+total+'</strong> facturas</span>'+
+            '<span class="pc-stat"><strong>'+cobradas+'</strong> cobradas</span>'+
+            '<span class="pc-stat"><strong>'+pct+'%</strong> avance</span>'+
+          '</div>'+
+          '<div class="pc-bar"><div class="pc-bar-fill" style="width:'+pct+'%"></div></div>'+
+        '</div>';
+      }).join('');
+    }
+    if(sinPlanilla.length){
+      html+='<div class="section-lbl" style="margin-top:'+(activas.length?'12px':'0')+'">Sin planilla activa ('+sinPlanilla.length+')</div>';
+      html+=sinPlanilla.map(function(r){
+        return '<div class="planilla-card" style="opacity:0.6">'+
+          '<div class="pc-head">'+
+            '<div class="pc-vendedor">'+r.vendor+'</div>'+
+            '<span class="pc-estado" style="background:#F4F5F7;color:var(--gris)">Sin planilla</span>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    }
+    box.innerHTML=html;
+  }).catch(function(){box.innerHTML='<div style="color:var(--gris);font-size:12px;text-align:center;padding:12px">Error al cargar</div>';});
+}
+
+function onPDF(input){
+  var file=input.files[0];
+  if(!file){return;}
+  document.getElementById('uploadWrap').innerHTML=
+    '<div class="upload-preview">'+
+    '<span class="upload-preview-icon">📄</span>'+
+    '<div><div class="upload-preview-name">'+file.name+'</div><div class="upload-preview-sub">'+Math.round(file.size/1024)+' KB · PDF listo</div></div>'+
+    '</div>';
+  irPaso(3);
+  procesarPDF(file);
+}
+
+function procesarPDF(file){
+  var sub=document.getElementById('procSub');
+  var fill=document.getElementById('procFill');
+  fill.style.width='15%';
+  sub.textContent='Leyendo PDF…';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    fill.style.width='35%';
+    sub.textContent='Extrayendo texto…';
+    pdfjsLib.getDocument({data:e.target.result}).promise.then(function(pdf){
+      fill.style.width='55%';
+      sub.textContent='Procesando '+pdf.numPages+' páginas…';
+      var pages=[];
+      var pagePromises=[];
+      for(var i=1;i<=pdf.numPages;i++){
+        pagePromises.push(pdf.getPage(i).then(function(page){
+          return page.getTextContent().then(function(tc){
+            return tc.items.map(function(it){return it.str;}).join(' ');
+          });
+        }));
+      }
+      return Promise.all(pagePromises);
+    }).then(function(textos){
+      fill.style.width='75%';
+      sub.textContent='Identificando facturas…';
+      var textoCompleto=textos.join(' ');
+      var resultado=extraerFacturas(textoCompleto);
+      fill.style.width='100%';
+      sub.textContent='¡Listo! '+resultado.facturas.length+' facturas encontradas';
+      pdfData=resultado;
+      setTimeout(function(){mostrarResultado(resultado);},600);
+    }).catch(function(err){
+      console.error(err);
+      toast('Error al leer el PDF. Intenta de nuevo.','err');
+      irPaso(2);
+    });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function extraerFacturas(texto){
+  var vendedor='', folioHoja='', fecha='';
+  var vm=texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ\s]+?)(?=Fecha:|$)/i);
+  if(vm) vendedor=vm[1].trim();
+  var fm=texto.match(/Folio:\s*(\d+)/i);
+  if(fm) folioHoja=fm[1].trim();
+  var dm=texto.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if(dm) fecha=dm[1].trim();
+  var facturas=[];
+  var patron=/\b(AG\d{7}|FVB\d{6}|AGR\d{7})\b/g;
+  var matches=[...texto.matchAll(patron)];
+  matches.forEach(function(m,idx){
+    var folio=m[0];
+    var pos=m.index;
+    var fragmento=texto.substring(pos,pos+300);
+    var fechas=fragmento.match(/\d{2}\/\d{2}\/\d{4}/g)||[];
+    var numeros=fragmento.match(/\b\d{1,3}(?:,\d{3})*\.\d{2}\b/g)||[];
+    var diasM=fragmento.match(/\b(\d{4})\s+(\d{1,3}(?:,\d{3})*\.\d{2})\b/);
+    var dias=0;
+    if(diasM) dias=parseInt(diasM[1].slice(-2))||0;
+    var diasM2=fragmento.match(/\d{2}\/\d{4}\s+(\d+)\s+[\d,]+\.\d{2}/);
+    if(diasM2) dias=parseInt(diasM2[1])||0;
+    var total=0,saldo=0;
+    if(numeros.length>=2){
+      total=parseFloat(numeros[numeros.length-2].replace(/,/g,''));
+      saldo=parseFloat(numeros[numeros.length-1].replace(/,/g,''));
+    } else if(numeros.length===1){
+      total=saldo=parseFloat(numeros[0].replace(/,/g,''));
+    }
+    var nombreFragmento=fragmento.substring(folio.length+10,folio.length+80);
+    var nombre=nombreFragmento.replace(/\d{2}\/\d{2}\/\d{4}/g,'').replace(/\d+,?\d*\.\d{2}/g,'').replace(/\s+/g,' ').trim().substring(0,50);
+    if(total>0){
+      facturas.push({folio:folio,nombre:nombre,fecha:fechas[0]||'',vencimiento:fechas[1]||'',dias:dias,total:total,saldo:saldo});
+    }
+  });
+  // Deduplicar por folio
+  var vistos={};
+  facturas=facturas.filter(function(f){if(vistos[f.folio])return false;vistos[f.folio]=true;return true;});
+  return {vendedor:vendedor,folioHoja:folioHoja,fecha:fecha,facturas:facturas};
+}
+
+function mostrarResultado(data){
+  irPaso(4);
+  var totalSaldo=data.facturas.reduce(function(s,f){return s+f.saldo;},0);
+  document.getElementById('resultHeader').innerHTML=
+    '<div class="result-header">'+
+      '<div class="rh-vendedor">'+data.vendedor+'</div>'+
+      '<div class="rh-hoja">Hoja '+data.folioHoja+' · '+data.fecha+'</div>'+
+      '<div class="rh-stats">'+
+        '<div class="rh-stat"><div class="rh-stat-val">'+data.facturas.length+'</div><div class="rh-stat-lbl">Facturas</div></div>'+
+        '<div class="rh-stat"><div class="rh-stat-val">'+new Set(data.facturas.map(function(f){return f.nombre;})).size+'</div><div class="rh-stat-lbl">Clientes</div></div>'+
+        '<div class="rh-stat"><div class="rh-stat-val" style="font-size:13px">$'+Math.round(totalSaldo/1000)+'K</div><div class="rh-stat-lbl">Saldo total</div></div>'+
+      '</div>'+
+    '</div>';
+  document.getElementById('listaFacturas').innerHTML=data.facturas.map(function(f){
+    var badge=f.dias>7?'<span class="fi-badge vencida">'+f.dias+' días vencida</span>':f.dias>0?'<span class="fi-badge pronto">'+f.dias+' días</span>':'<span class="fi-badge corriente">Al corriente</span>';
+    return '<div class="fact-item">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div class="fi-folio">'+f.folio+'</div>'+
+        '<div class="fi-nombre">'+f.nombre+'</div>'+
+        badge+
+      '</div>'+
+      '<div class="fi-saldo">$'+fmtMoney(f.saldo)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function activarPlanilla(){
+  if(!pdfData||!pdfData.facturas.length){toast('No hay facturas para activar','err');return;}
+  var btn=document.getElementById('btnActivar');
+  btn.disabled=true; btn.innerHTML='⏳ Activando…';
+  var vendedor=pdfData.vendedor;
+  var key=mkKey(vendedor);
+  var ts=Date.now();
+  var facturasObj={};
+  pdfData.facturas.forEach(function(f,i){
+    facturasObj[f.folio]={...f,estado:'pendiente',idx:i};
+  });
+  var planillaData={
+    vendedor:vendedor,folio_hoja:pdfData.folioHoja,fecha:pdfData.fecha,
+    ts:ts,estado:'activa',cargadaPor:usuarioSel,zona:zonaSel,
+    totalFacturas:pdfData.facturas.length,cobradas:0,facturas:facturasObj
+  };
+  db.ref('planillas/'+getZonaVendedor(planillaData.vendedor)+'/'+key+'/'+ts).set(planillaData).then(function(){
+    var totalSaldo=pdfData.facturas.reduce(function(s,f){return s+f.saldo;},0);
+    document.getElementById('exitoSub').textContent=vendedor+' ya ve sus '+pdfData.facturas.length+' facturas en la app';
+    document.getElementById('exitoResumen').innerHTML=
+      '<div style="font-size:16px;font-weight:800;color:var(--naranja);margin-bottom:8px">'+vendedor+'</div>'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid rgba(255,255,255,.1)"><span style="font-size:11px;color:rgba(255,255,255,.5)">Hoja</span><span style="font-size:11px;font-weight:600;color:#fff">'+pdfData.folioHoja+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid rgba(255,255,255,.1)"><span style="font-size:11px;color:rgba(255,255,255,.5)">Facturas</span><span style="font-size:11px;font-weight:600;color:#fff">'+pdfData.facturas.length+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span style="font-size:11px;color:rgba(255,255,255,.5)">Saldo total</span><span style="font-size:12px;font-weight:800;color:var(--naranja)">$'+fmtMoney(totalSaldo)+'</span></div>';
+    pdfData=null;
+    document.getElementById('uploadWrap').innerHTML=
+      '<div class="upload-area" onclick="document.getElementById(\'inputPDF\').click()">'+
+      '<div class="upload-icon">📄</div><div class="upload-title">Toca para subir el PDF</div>'+
+      '<div class="upload-sub">Hoja de entrega de documentos de Microsip</div></div>';
+    document.getElementById('inputPDF').value='';
+    irPaso(5);
+    toast('✅ Planilla activada','ok');
+  }).catch(function(e){
+    console.error(e);
+    toast('Error al activar. Intenta de nuevo.','err');
+  }).finally(function(){
+    btn.disabled=false; btn.innerHTML='✅ Activar planilla para el vendedor';
+  });
+}
+
+var toastTimer;
+function toast(msg,tipo){var el=document.getElementById('toast');el.textContent=msg;el.className='toast show '+(tipo||'');clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove('show');},3200);}
+</script>
+</body>
+</html>
