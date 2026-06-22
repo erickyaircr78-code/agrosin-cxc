@@ -500,6 +500,8 @@ function extraerFacturas(texto){
     var dias=diasM?parseInt(diasM[1]):0;
     var nomFrag=frag.substring(f.length+5, f.length+90);
     var nombre=nomFrag.replace(/\d{2}\/\d{2}\/\d{4}/g,'').replace(/\b\d{1,3}(?:,\d{3})*\.\d{2}\b/g,'').replace(/\s+/g,' ').trim().substring(0,55);
+    // Limpiar nombre: quitar números iniciales (clave cliente) y finales
+    nombre = nombre.replace(/^\d+\s+/,'').replace(/\s+\d+\s*$/,'').trim();
     facturas.push({folio:f,nombre:nombre,fecha:fechas[0]||'',vencimiento:fechas[1]||'',dias:dias,total:total,saldo:saldo,estado:'pendiente'});
   });
 

@@ -697,11 +697,14 @@ function mostrarClientes(clientes){
     lista.innerHTML='<div style="text-align:center;color:var(--gris);font-size:13px;padding:20px">Sin resultados</div>';
     return;
   }
-  lista.innerHTML=filtrados.map(function(c){
+  // Guardar referencia global para acceso por índice
+  window._clientesActuales = filtrados;
+  lista.innerHTML=filtrados.map(function(c,i){
     var badge=c.dias>7?'<span class="cli-badge vencida">'+c.dias+' días vencida</span>':c.dias>0?'<span class="cli-badge pronto">'+c.dias+' día'+(c.dias>1?'s':'')+'</span>':'<span class="cli-badge ok">Al corriente</span>';
     var sel=clienteSel&&clienteSel.folio===c.folio?' sel':'';
-    var nombre=c.nombre||'Cliente sin nombre';
-    return '<div class="cliente-item'+sel+'" onclick="selCliente('+JSON.stringify(c).replace(/'/g,"\'")+')">'+
+    // Limpiar nombre — quitar números y caracteres extraños al inicio
+    var nombre=(c.nombre||'Cliente').replace(/^[\d\s]+/,'').trim();
+    return '<div class="cliente-item'+sel+'" onclick="selClienteIdx('+i+')" style="cursor:pointer">'+
       '<div style="flex:1;min-width:0">'+
         '<div class="cli-nombre">'+nombre+'</div>'+
         '<div class="cli-folio">'+c.folio+'</div>'+
@@ -718,6 +721,16 @@ function filtrarClientes(q){
 
 function selCliente(c){
   clienteSel=c;
+  setTimeout(function(){irPaso(3);},150);
+}
+
+function selClienteIdx(i){
+  var lista = window._clientesActuales;
+  if(!lista || i >= lista.length) return;
+  var c = lista[i];
+  // Limpiar nombre al seleccionar
+  c.nombre = (c.nombre||'').replace(/^[\d\s]+/,'').trim();
+  clienteSel = c;
   setTimeout(function(){irPaso(3);},150);
 }
 
