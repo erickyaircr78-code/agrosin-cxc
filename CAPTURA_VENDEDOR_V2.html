@@ -406,6 +406,7 @@ input[type=file]{display:none}
       <span class="exito-icon">✅</span>
       <div class="exito-title">Cobro registrado</div>
       <div class="exito-sub">Visible en el tablero en tiempo real</div>
+      <div id="exitoExtra"></div>
       <div class="exito-resumen">
         <div class="exito-monto" id="exitoMonto"></div>
         <div class="confirm-row"><span class="confirm-k">Cliente</span><span class="confirm-v" id="exitoCliente"></span></div>
@@ -571,7 +572,10 @@ function irPaso(n){
   document.getElementById('content').scrollTop=0;
   pasoActual=n;
   actualizarProgreso(n);
-  if(n===1) renderPaso1();
+  if(n===1){
+    CLIENTES_FIREBASE=[];
+    renderPaso1();
+  }
   if(n===2){
     CLIENTES_FIREBASE=[];
     document.getElementById('clienteSearch').value='';
@@ -834,9 +838,20 @@ function guardar(){
     document.getElementById('exitoCliente').textContent=clienteSel.nombre;
     document.getElementById('exitoTipo').textContent=tipoSel;
     document.getElementById('exitoBanco').textContent=bancoSel;
+    // Mostrar saldo restante si fue abono
+    var saldoRestante = Math.max(0, parseFloat(((clienteSel.saldo||0) - monto).toFixed(2)));
+    var exitoExtra = document.getElementById('exitoExtra');
+    if(exitoExtra){
+      if(saldoRestante > 0.01){
+        exitoExtra.innerHTML='<div style="background:#FEF3C7;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400E;margin-top:8px">⚠️ Abono parcial — Saldo restante: <strong>$'+fmtMoney(saldoRestante)+'</strong></div>';
+      } else {
+        exitoExtra.innerHTML='<div style="background:#DCFCE7;border-radius:8px;padding:8px 12px;font-size:11px;color:#166534;margin-top:8px">✓ Factura liquidada completamente</div>';
+      }
+    }
     var linkComp='https://erickyaircr78-code.github.io/agrosin-cxc/verificar/'+key+'_'+ts;
     document.getElementById('btnWhats').onclick=function(){window.open('https://wa.me/?text='+encodeURIComponent('Hola, tu comprobante de pago Ferregama: '+linkComp),'_blank');};
     tipoSel=''; bancoSel=''; montoStr=''; clienteSel=null; fotoFile=null;
+    var ee=document.getElementById('exitoExtra'); if(ee) ee.innerHTML='';
     document.querySelectorAll('.tipo-card').forEach(function(c){c.classList.remove('sel');});
     document.querySelectorAll('.banco-chip').forEach(function(c){c.classList.remove('sel');});
     quitarFoto();
