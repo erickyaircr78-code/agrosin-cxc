@@ -322,8 +322,8 @@ function renderMain(results){
       '<div><div class="mh-title">Zona '+G.zona+'</div><div class="mh-sub">'+results.length+' vendedores · '+activas.length+' con planilla activa</div></div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
       '<button class="btn-ora" onclick="vistaUpload()">📄 Cargar nueva planilla</button>'+
-      '<button class="btn-sec" onclick="descargarTodas(\'excel\')" title="Descargar todas las planillas activas en Excel">📊 Todas en Excel</button>'+
-      '<button class="btn-sec" onclick="descargarTodas(\'csv\')" title="Descargar todas las planillas activas en CSV">📄 Todas en CSV</button>'+
+      '<button class="btn-sec" onclick="descargarTodas(\'excel\')">📊 Mis planillas Excel</button>'+
+      '<button class="btn-sec" onclick="descargarTodas(\'csv\')">📄 Mis planillas CSV</button>'+
       '</div>'+
     '</div>'+
     '<div class="tabs">'+
@@ -358,7 +358,7 @@ function renderMain(results){
             '</div>'+
             '<div class="pc-bar-bg"><div class="pc-bar-fill" style="width:'+pct+'%"></div></div>'+
             '<div class="pc-footer">'+
-              '<span class="pc-cargada">Cargada por '+h.cargadaPor+'</span>'+
+              '<span class="pc-cargada">'+(h.cargadaPor===G.user?'✓ Cargada por ti':'Cargada por '+h.cargadaPor)+'</span>'+
               '<button class="btn-ver" onclick="verDetalle(\''+safeR+'\')">Ver facturas</button>'+
             '</div>'+
           '</div>'+
@@ -671,6 +671,11 @@ function verDetalle(dataStr){
 function descargarPlanilla(dataStr, formato){
   var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
   var h = r.hoja;
+  // Validar que la planilla fue cargada por quien está logueado
+  if(h.cargadaPor && h.cargadaPor !== G.user){
+    toast('Esta planilla fue cargada por '+h.cargadaPor,'warn');
+    return;
+  }
   var facts = h.facturas ? Object.values(h.facturas) : [];
   if(!facts.length){ toast('Sin facturas para descargar','warn'); return; }
 
@@ -733,7 +738,7 @@ function descargarTodas(formato){
       var d = snap.val();
       if(d){
         var h = Object.values(d)[0];
-        if(h && h.estado==='activa' && h.facturas){
+        if(h && h.estado==='activa' && h.facturas && h.cargadaPor===G.user){
           Object.values(h.facturas).forEach(function(f){
             allRows.push({
               'Hoja': h.folio_hoja,
