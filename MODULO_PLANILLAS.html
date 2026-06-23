@@ -222,6 +222,7 @@ input[type=file]{display:none}
 <div class="toast-wrap"><div class="toast" id="toast"></div></div>
 <input type="file" id="inputPDF" accept="application/pdf" onchange="onPDF(this)">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
@@ -319,7 +320,11 @@ function renderMain(results){
   var html=
     '<div class="mh">'+
       '<div><div class="mh-title">Zona '+G.zona+'</div><div class="mh-sub">'+results.length+' vendedores · '+activas.length+' con planilla activa</div></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
       '<button class="btn-ora" onclick="vistaUpload()">📄 Cargar nueva planilla</button>'+
+      '<button class="btn-sec" onclick="descargarTodas(\'excel\')" title="Descargar todas las planillas activas en Excel">📊 Todas en Excel</button>'+
+      '<button class="btn-sec" onclick="descargarTodas(\'csv\')" title="Descargar todas las planillas activas en CSV">📄 Todas en CSV</button>'+
+      '</div>'+
     '</div>'+
     '<div class="tabs">'+
       '<button class="tab act" onclick="setTab(\'act\',this)">Planillas activas ('+activas.length+')</button>'+
@@ -662,6 +667,144 @@ function verDetalle(dataStr){
 }
 
 // ── TOAST ──────────────────────────────────────────────
+// ── DESCARGA INDIVIDUAL ────────────────────────────────
+function descargarPlanilla(dataStr, formato){
+  var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
+  var h = r.hoja;
+  var facts = h.facturas ? Object.values(h.facturas) : [];
+  if(!facts.length){ toast('Sin facturas para descargar','warn'); return; }
+
+  var rows = facts.map(function(f){
+    return {
+      'Hoja': h.folio_hoja,
+      'Vendedor': r.vendor,
+      'Zona': h.zona||G.zona,
+      'Folio Factura': f.folio,
+      'Cliente': f.nombre,
+      'Fecha Factura': f.fecha,
+      'Vencimiento': f.vencimiento,
+      'Días Atraso': f.dias||0,
+      'Total Original': f.total||0,
+      'Saldo Pendiente': f.saldo||0,
+      'Estado': f.estado||'pendiente',
+      'Monto Cobrado': f.montoCobrado||0,
+      'Fecha Cobro': f.fechaCobro||''
+    };
+  });
+
+  var nombre = 'Planilla_'+r.vendor+'_Hoja'+h.folio_hoja+'_'+h.fecha.replace(/\//g,'-');
+
+  if(formato==='excel'){
+    var ws = XLSX.utils.json_to_sheet(rows);
+    // Ancho de columnas
+    ws['!cols'] = [
+      {wch:8},{wch:16},{wch:10},{wch:14},{wch:40},{wch:12},{wch:12},
+      {wch:10},{wch:14},{wch:14},{wch:12},{wch:14},{wch:12}
+    ];
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, r.vendor);
+    XLSX.writeFile(wb, nombre+'.xlsx');
+    toast('✅ Excel descargado — '+r.vendor,'ok');
+  } else {
+    var csv = rows.map(function(row){
+      return Object.values(row).map(function(v){
+        return '"'+String(v||'').replace(/"/g,'""')+'"';
+      }).join(',');
+    });
+    csv.unshift(Object.keys(rows[0]).join(','));
+    var blob = new Blob([csv.join('\n')], {type:'text/csv;charset=utf-8;'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre+'.csv';
+    a.click();
+    toast('✅ CSV descargado — '+r.vendor,'ok');
+  }
+}
+
+// ── DESCARGA TODAS LAS PLANILLAS ACTIVAS ───────────────
+function descargarTodas(formato){
+  var vends = ZONAS[G.zona]||[];
+  var allRows = [];
+  var done = 0; var total = vends.length;
+  toast('⏳ Preparando descarga…','');
+
+  vends.forEach(function(v){
+    db.ref('planillas/'+G.zona+'/'+key(v)).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
+      var d = snap.val();
+      if(d){
+        var h = Object.values(d)[0];
+        if(h && h.estado==='activa' && h.facturas){
+          Object.values(h.facturas).forEach(function(f){
+            allRows.push({
+              'Hoja': h.folio_hoja,
+              'Vendedor': v,
+              'Zona': G.zona,
+              'Folio Factura': f.folio,
+              'Cliente': f.nombre,
+              'Fecha Factura': f.fecha,
+              'Vencimiento': f.vencimiento,
+              'Días Atraso': f.dias||0,
+              'Total Original': f.total||0,
+              'Saldo Pendiente': f.saldo||0,
+              'Estado': f.estado||'pendiente',
+              'Monto Cobrado': f.montoCobrado||0,
+              'Fecha Cobro': f.fechaCobro||''
+            });
+          });
+        }
+      }
+      done++;
+      if(done===total){
+        if(!allRows.length){ toast('Sin planillas activas para descargar','warn'); return; }
+        // Ordenar por hoja y vendedor
+        allRows.sort(function(a,b){
+          if(a.Hoja !== b.Hoja) return a.Hoja - b.Hoja;
+          return a.Vendedor.localeCompare(b.Vendedor);
+        });
+        var fecha = new Date().toLocaleDateString('es-MX').replace(/\//g,'-');
+        var nombre = 'Planillas_'+G.zona+'_'+fecha;
+        if(formato==='excel'){
+          var ws = XLSX.utils.json_to_sheet(allRows);
+          ws['!cols'] = [
+            {wch:8},{wch:16},{wch:10},{wch:14},{wch:40},{wch:12},{wch:12},
+            {wch:10},{wch:14},{wch:14},{wch:12},{wch:14},{wch:12}
+          ];
+          // Colorear filas vencidas
+          var wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'Planillas '+G.zona);
+          // Hoja resumen por vendedor
+          var resumen = {};
+          allRows.forEach(function(r){
+            if(!resumen[r.Vendedor]) resumen[r.Vendedor]={Vendedor:r.Vendedor,Zona:r.Zona,Facturas:0,Cobradas:0,'Saldo Total':0,'Cobrado':0};
+            resumen[r.Vendedor].Facturas++;
+            if(r.Estado==='cobrada') resumen[r.Vendedor].Cobradas++;
+            resumen[r.Vendedor]['Saldo Total']+=r['Saldo Pendiente'];
+            resumen[r.Vendedor]['Cobrado']+=r['Monto Cobrado']||0;
+          });
+          var wsRes = XLSX.utils.json_to_sheet(Object.values(resumen));
+          wsRes['!cols']=[{wch:16},{wch:10},{wch:10},{wch:10},{wch:14},{wch:14}];
+          XLSX.utils.book_append_sheet(wb, wsRes, 'Resumen por Vendedor');
+          XLSX.writeFile(wb, nombre+'.xlsx');
+          toast('✅ Excel con '+allRows.length+' facturas descargado','ok');
+        } else {
+          var csv = allRows.map(function(row){
+            return Object.values(row).map(function(v){
+              return '"'+String(v||'').replace(/"/g,'""')+'"';
+            }).join(',');
+          });
+          csv.unshift(Object.keys(allRows[0]).join(','));
+          var blob = new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = nombre+'.csv';
+          a.click();
+          toast('✅ CSV con '+allRows.length+' facturas descargado','ok');
+        }
+      }
+    });
+  });
+}
+
 var _tt;
 function toast(msg,tipo){
   var el=$('toast');
