@@ -329,6 +329,7 @@ function renderMain(results){
     '<div class="tabs">'+
       '<button class="tab act" onclick="setTab(\'act\',this)">Planillas activas ('+activas.length+')</button>'+
       '<button class="tab" onclick="setTab(\'sin\',this)">Sin planilla ('+sin.length+')</button>'+
+      '<button class="tab" style="color:#1D4ED8" onclick="setTab(\'hist\',this)">Historial</button>'+
     '</div>'+
     '<div class="tc act" id="tc-act">';
 
@@ -359,7 +360,12 @@ function renderMain(results){
             '<div class="pc-bar-bg"><div class="pc-bar-fill" style="width:'+pct+'%"></div></div>'+
             '<div class="pc-footer">'+
               '<span class="pc-cargada">'+(h.cargadaPor===G.user?'✓ Cargada por ti':'Cargada por '+h.cargadaPor)+'</span>'+
-              '<button class="btn-ver" onclick="verDetalle(\''+safeR+'\')">Ver facturas</button>'+
+              '<button class="btn-ver" onclick="verDetalle(\''+safeR+'\')">Ver</button>'+
+              (h.cargadaPor===G.user ?
+                '<button class="btn-ver" style="background:#217346;color:#fff;border:none" onclick="descargarPlanilla(\\''+safeR+'\\',\\'excel\\')">📊</button>'+
+                '<button class="btn-ver" style="background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE" onclick="cerrarPlanillaConfirm(\\''+safeR+'\\')">✓</button>'+
+                '<button class="btn-ver" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA" onclick="borrarPlanillaConfirm(\\''+safeR+'\\')">🗑</button>'
+              : '')'+
             '</div>'+
           '</div>'+
         '</div>';
@@ -376,7 +382,67 @@ function renderMain(results){
     '</div>';
   });
   html+='</div></div>';
+  // Tab historial
+  html+='</div></div><div class="tc" id="tc-hist">';
+  html+='<div id="historialContainer"><div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Cargando historial…</div></div></div>';
+  html+='</div>';
+
   $('main').innerHTML=html;
+  // Cargar historial en background
+  setTimeout(function(){ cargarHistorial(); }, 300);
+}
+
+function cargarHistorial(){
+  var cont = $('historialContainer');
+  if(!cont) return;
+  var vends = ZONAS[G.zona]||[];
+  var cerradas = []; var done = 0;
+  vends.forEach(function(v){
+    db.ref('planillas/'+G.zona+'/'+key(v)).once('value').then(function(snap){
+      var d = snap.val();
+      if(d){
+        Object.entries(d).forEach(function(entry){
+          var k = entry[0]; var h = entry[1];
+          if(h && h.estado === 'cerrada' && h.cargadaPor === G.user){
+            cerradas.push({vendor:v, hoja:h, hojaKey:k});
+          }
+        });
+      }
+      done++;
+      if(done === vends.length){
+        if(!cerradas.length){
+          if(cont) cont.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin historial aún</div><div class="empty-sub">Las planillas cerradas aparecerán aquí</div></div>';
+          return;
+        }
+        cerradas.sort(function(a,b){ return (b.hoja.ts||0)-(a.hoja.ts||0); });
+        var html='<div style="font-size:10px;font-weight:700;color:var(--gri);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">'+cerradas.length+' planilla(s) cerrada(s) — cargadas por ti</div>';
+        cerradas.forEach(function(r){
+          var h=r.hoja;
+          var saldo=0; if(h.facturas) Object.values(h.facturas).forEach(function(f){saldo+=f.montoCobrado||0;});
+          var safeR=JSON.stringify({vendor:r.vendor,hoja:h,hojaKey:r.hojaKey}).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+          html+='<div style="background:var(--bla);border-radius:10px;border:0.5px solid var(--bor);margin-bottom:8px;overflow:hidden">'+
+            '<div style="background:#374151;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">'+
+              '<div><div style="font-size:13px;font-weight:700;color:#fff">'+r.vendor+'</div>'+
+              '<div style="font-size:9px;color:rgba(255,255,255,0.4);font-family:monospace">Hoja '+h.folio_hoja+' · '+h.fecha+'</div></div>'+
+              '<span style="font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(134,239,172,0.2);color:#86EFAC">Cerrada</span>'+
+            '</div>'+
+            '<div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center">'+
+              '<div style="font-size:11px;color:var(--gri)">'+
+                '<div style="font-weight:600;color:var(--tex);margin-bottom:2px">'+(h.totalFacturas||0)+' facturas · $'+fmt(saldo)+' cobrado</div>'+
+                'Cerrada por '+h.cargadaPor+
+              '</div>'+
+              '<div style="display:flex;gap:6px">'+
+                '<button class="btn-ver" onclick="verDetalle(\''+safeR+'\')">Ver</button>'+
+                '<button class="btn-ver" style="background:#217346;color:#fff;border:none" onclick="descargarPlanilla(\''+safeR+'\',\'excel\')">📊</button>'+
+                '<button class="btn-ver" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA" onclick="borrarPlanillaConfirm(\''+safeR+'\')">🗑</button>'+
+              '</div>'+
+            '</div>'+
+          '</div>';
+        });
+        if(cont) cont.innerHTML=html;
+      }
+    });
+  });
 }
 
 function setTab(id,el){
@@ -466,58 +532,51 @@ function setProc(txt,pct){
 function extraerFacturas(texto){
   var vendedor='', folio='', fecha='';
 
-  // Extraer vendedor — múltiples intentos
-  var v1=texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]{1,25})(?=Folio|Fecha|\d{2}\/|\n)/i);
-  var v2=texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+)*)/i);
-  if(v1) vendedor=v1[1].trim().replace(/\s+/g,' ');
-  else if(v2) vendedor=v2[1].trim().replace(/\s+/g,' ');
+  // Limpiar marcas de pagina del PDF (ej: "17/06/2026 02:27:40 p. m. 1AG0048680")
+  texto = texto.replace(/\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}\s+[ap]\.\s*m\.\s*\d+/gi, ' ');
 
-  // Limpiar vendedor de texto sobrante
-  vendedor=vendedor.replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'').trim();
+  // Extraer encabezado
+  var vm=texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+)*)/i);
+  if(vm) vendedor=vm[1].trim().replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'').replace(/\s+/g,' ').trim();
+  var fm=texto.match(/Folio:\s*(\d+)/i);
+  if(fm) folio=fm[1];
+  var dm=texto.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if(dm) fecha=dm[1];
 
-  // Extraer folio de hoja
-  var f1=texto.match(/Folio:\s*(\d+)/i);
-  if(f1) folio=f1[1];
+  // Procesar linea por linea — estructura exacta del PDF Microsip
+  var PFACT=new RegExp('^(AG[A-Z]?\\d{5,8}|FVB\\d{5,8}|AGR\\d{5,8})\\s+(\\d{4,5})\\s+([A-ZA-Z\\s\\(\\)\\.]+?)\\s+(\\d{2}/\\d{2}/\\d{4})\\s+(\\d{2}/\\d{2}/\\d{4})\\s+(\\d+)\\s+([\\d,]+\\.\\d{2})\\s+([\\d,]+\\.\\d{2})');
+  var PFOLIO=new RegExp('^(AG[A-Z]?\\d{5,8}|FVB\\d{5,8}|AGR\\d{5,8})\\s');
 
-  // Extraer fecha
-  var d1=texto.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/i);
-  if(d1) fecha=d1[1];
-
-  // Extraer facturas
+  var lineas=texto.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
   var facturas=[];
-  var patron=/\b(AG[A-Z]?\d{5,8}|FVB\d{5,8}|AGR\d{5,8})\b/g;
-  var matches=[...texto.matchAll(patron)];
-  var vistos={};
+  var i=0;
 
-  matches.forEach(function(m){
-    var f=m[0];
-    if(vistos[f]) return;
-    vistos[f]=true;
-    var pos=m.index;
-    var frag=texto.substring(pos, pos+400);
-    var fechas=frag.match(/\d{2}\/\d{2}\/\d{4}/g)||[];
-    var nums=frag.match(/\b\d{1,3}(?:,\d{3})*\.\d{2}\b/g)||[];
-    if(!nums.length) return;
-    var total=parseFloat(nums[nums.length>=2?nums.length-2:0].replace(/,/g,''));
-    var saldo=parseFloat(nums[nums.length-1].replace(/,/g,''));
-    if(!total||total<1) return;
-    var diasM=frag.match(/\d{2}\/\d{4}\s+(\d+)\s/);
-    var dias=diasM?parseInt(diasM[1]):0;
-    var nomFrag=frag.substring(f.length+5, f.length+90);
-    var nombre=nomFrag.replace(/\d{2}\/\d{2}\/\d{4}/g,'').replace(/\b\d{1,3}(?:,\d{3})*\.\d{2}\b/g,'').replace(/\s+/g,' ').trim().substring(0,55);
-    // Limpiar nombre: quitar números iniciales (clave cliente) y finales
-    nombre = nombre.replace(/^\d+\s+/,'').replace(/\s+\d+\s*$/,'').trim();
-    // Extraer clave del cliente (número entre el folio y el nombre)
-    var claveM = frag.match(/^[A-Z0-9]+\s+(\d{4,5})\s+/);
-    var clave = claveM ? claveM[1] : '';
-    // Limpiar nombre: quitar clave y números iniciales
-    nombre = nombre.replace(/^\d+\s+/,'').replace(/^\d+\s*/,'').trim();
-    facturas.push({folio:f,clave:clave,nombre:nombre,fecha:fechas[0]||'',vencimiento:fechas[1]||'',dias:dias,total:total,saldo:saldo,estado:'pendiente'});
-  });
-
-  return {vendedor:vendedor, folioHoja:folio, fecha:fecha, facturas:facturas};
+  while(i<lineas.length){
+    var m=PFACT.exec(lineas[i]);
+    if(m){
+      var nombre=m[3].trim();
+      // Consumir hasta 2 lineas de continuacion del nombre
+      for(var x=0;x<2;x++){
+        if(i+1<lineas.length){
+          var sig=lineas[i+1];
+          var esFolio=PFOLIO.test(sig);
+          var esFin=!sig||/^(Folio|Total|CUAUHTEMOC|ULISES|EMILIO|MORELOS|CDMX|PUEBLA|ABRAHAM|ENRIQUE|JORGE)/i.test(sig);
+          if(!esFolio&&!esFin&&sig.length<60){nombre=nombre+' '+sig;i++;}
+          else break;
+        }
+      }
+      facturas.push({
+        folio:m[1],clave:m[2],nombre:nombre.trim(),
+        fecha:m[4],vencimiento:m[5],dias:parseInt(m[6]),
+        total:parseFloat(m[7].replace(/,/g,'')),
+        saldo:parseFloat(m[8].replace(/,/g,'')),
+        estado:'pendiente'
+      });
+    }
+    i++;
+  }
+  return {vendedor:vendedor,folioHoja:folio,fecha:fecha,facturas:facturas};
 }
-
 // ── SELECTOR MANUAL DE VENDEDOR ────────────────────────
 function vistaSelVendedor(data){
   var vends=ZONAS[G.zona]||[];
@@ -826,6 +885,43 @@ function descargarTodas(formato){
       }
     });
   });
+}
+
+// ── CERRAR PLANILLA ────────────────────────────────────
+function cerrarPlanillaConfirm(dataStr){
+  var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
+  if(!confirm('¿Cerrar la planilla Hoja '+r.hoja.folio_hoja+' de '+r.vendor+'?\nPasará al historial. Los cobros no se borran.')) return;
+  var zonaV = zonaDeVendedor(r.vendor);
+  var k = key(r.vendor);
+  // Obtener la key de la planilla
+  db.ref('planillas/'+zonaV+'/'+k).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
+    var d = snap.val();
+    if(!d) return;
+    var planillaKey = Object.keys(d)[0];
+    return db.ref('planillas/'+zonaV+'/'+k+'/'+planillaKey+'/estado').set('cerrada');
+  }).then(function(){
+    toast('✓ Planilla cerrada — pasó al historial','ok');
+    cargarSidebar();
+    cargarMain();
+  }).catch(function(e){ console.error(e); toast('Error al cerrar','err'); });
+}
+
+// ── BORRAR PLANILLA ─────────────────────────────────────
+function borrarPlanillaConfirm(dataStr){
+  var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
+  if(!confirm('¿BORRAR la planilla Hoja '+r.hoja.folio_hoja+' de '+r.vendor+'?\nEsta acción NO se puede deshacer.\nLos cobros registrados NO se borran.')) return;
+  var zonaV = zonaDeVendedor(r.vendor);
+  var k = key(r.vendor);
+  db.ref('planillas/'+zonaV+'/'+k).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
+    var d = snap.val();
+    if(!d) return;
+    var planillaKey = Object.keys(d)[0];
+    return db.ref('planillas/'+zonaV+'/'+k+'/'+planillaKey).remove();
+  }).then(function(){
+    toast('🗑 Planilla borrada','ok');
+    cargarSidebar();
+    cargarMain();
+  }).catch(function(e){ console.error(e); toast('Error al borrar','err'); });
 }
 
 var _tt;
