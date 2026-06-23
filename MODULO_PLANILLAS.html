@@ -507,7 +507,12 @@ function extraerFacturas(texto){
     var nombre=nomFrag.replace(/\d{2}\/\d{2}\/\d{4}/g,'').replace(/\b\d{1,3}(?:,\d{3})*\.\d{2}\b/g,'').replace(/\s+/g,' ').trim().substring(0,55);
     // Limpiar nombre: quitar números iniciales (clave cliente) y finales
     nombre = nombre.replace(/^\d+\s+/,'').replace(/\s+\d+\s*$/,'').trim();
-    facturas.push({folio:f,nombre:nombre,fecha:fechas[0]||'',vencimiento:fechas[1]||'',dias:dias,total:total,saldo:saldo,estado:'pendiente'});
+    // Extraer clave del cliente (número entre el folio y el nombre)
+    var claveM = frag.match(/^[A-Z0-9]+\s+(\d{4,5})\s+/);
+    var clave = claveM ? claveM[1] : '';
+    // Limpiar nombre: quitar clave y números iniciales
+    nombre = nombre.replace(/^\d+\s+/,'').replace(/^\d+\s*/,'').trim();
+    facturas.push({folio:f,clave:clave,nombre:nombre,fecha:fechas[0]||'',vencimiento:fechas[1]||'',dias:dias,total:total,saldo:saldo,estado:'pendiente'});
   });
 
   return {vendedor:vendedor, folioHoja:folio, fecha:fecha, facturas:facturas};
@@ -682,18 +687,24 @@ function descargarPlanilla(dataStr, formato){
   var rows = facts.map(function(f){
     return {
       'Hoja': h.folio_hoja,
-      'Vendedor': r.vendor,
-      'Zona': h.zona||G.zona,
-      'Folio Factura': f.folio,
-      'Cliente': f.nombre,
+      'Cobrador': r.vendor,
+      'Folio': f.folio,
+      'Clave': f.clave||'',
+      'Nombre': f.nombre,
       'Fecha Factura': f.fecha,
       'Vencimiento': f.vencimiento,
-      'Días Atraso': f.dias||0,
+      'Atraso (días)': f.dias||0,
       'Total Original': f.total||0,
-      'Saldo Pendiente': f.saldo||0,
+      'Saldo': f.saldo||0,
+      'Efectivo': f.tipo==='Efectivo' ? f.montoCobrado||0 : 0,
+      'Cheque': f.tipo==='Cheque' ? f.montoCobrado||0 : 0,
+      'A Cuenta': (f.tipo&&f.tipo!=='Efectivo'&&f.tipo!=='Cheque'&&f.montoCobrado) ? f.montoCobrado : 0,
+      'Banco': f.banco||'',
+      'Tipo de Cobro': f.tipo||'',
       'Estado': f.estado||'pendiente',
-      'Monto Cobrado': f.montoCobrado||0,
-      'Fecha Cobro': f.fechaCobro||''
+      'Fecha Cobro': f.fechaCobro||'',
+      'Comprobante': f.tieneFoto ? 'SÍ' : 'NO',
+      'Observaciones': f.referencia||''
     };
   });
 
@@ -742,18 +753,24 @@ function descargarTodas(formato){
           Object.values(h.facturas).forEach(function(f){
             allRows.push({
               'Hoja': h.folio_hoja,
-              'Vendedor': v,
-              'Zona': G.zona,
-              'Folio Factura': f.folio,
-              'Cliente': f.nombre,
+              'Cobrador': v,
+              'Folio': f.folio,
+              'Clave': f.clave||'',
+              'Nombre': f.nombre,
               'Fecha Factura': f.fecha,
               'Vencimiento': f.vencimiento,
-              'Días Atraso': f.dias||0,
+              'Atraso (días)': f.dias||0,
               'Total Original': f.total||0,
-              'Saldo Pendiente': f.saldo||0,
+              'Saldo': f.saldo||0,
+              'Efectivo': f.tipo==='Efectivo' ? f.montoCobrado||0 : 0,
+              'Cheque': f.tipo==='Cheque' ? f.montoCobrado||0 : 0,
+              'A Cuenta': (f.tipo&&f.tipo!=='Efectivo'&&f.tipo!=='Cheque'&&f.montoCobrado) ? f.montoCobrado : 0,
+              'Banco': f.banco||'',
+              'Tipo de Cobro': f.tipo||'',
               'Estado': f.estado||'pendiente',
-              'Monto Cobrado': f.montoCobrado||0,
-              'Fecha Cobro': f.fechaCobro||''
+              'Fecha Cobro': f.fechaCobro||'',
+              'Comprobante': f.tieneFoto ? 'SÍ' : 'NO',
+              'Observaciones': f.referencia||''
             });
           });
         }
@@ -771,8 +788,9 @@ function descargarTodas(formato){
         if(formato==='excel'){
           var ws = XLSX.utils.json_to_sheet(allRows);
           ws['!cols'] = [
-            {wch:8},{wch:16},{wch:10},{wch:14},{wch:40},{wch:12},{wch:12},
-            {wch:10},{wch:14},{wch:14},{wch:12},{wch:14},{wch:12}
+            {wch:8},{wch:16},{wch:14},{wch:8},{wch:40},{wch:12},{wch:12},
+            {wch:10},{wch:14},{wch:14},{wch:12},{wch:12},{wch:12},
+            {wch:12},{wch:14},{wch:12},{wch:12},{wch:12},{wch:16}
           ];
           // Colorear filas vencidas
           var wb = XLSX.utils.book_new();
