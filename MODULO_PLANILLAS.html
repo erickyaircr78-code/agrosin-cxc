@@ -618,20 +618,16 @@ function extraerFacturas(texto){
   // Normalizar espacios (pdfjs retorna texto como una línea larga)
   texto = texto.replace(/\s+/g, ' ');
 
-  // Extraer encabezado — múltiples patrones para mayor robustez
-  var vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]{2,30?})(?=\s+Folio\s+Clave|\s+\d{2}\/\d{2}\/\d{4})/i);
-  if(!vm) vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]{2,25})(?=Folio|Fecha)/i);
-  if(!vm) vm = texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+){0,3})/i);
+  // Extraer vendedor — buscar entre "Cobrador:" y "Folio"
+  var vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]+?)(?=\s+Folio)/i);
   if(vm){
-    vendedor = vm[1].trim()
-      .replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'')
-      .replace(/Descripci.*$/i,'').replace(/\s+/g,' ').trim();
-    // Validar que el vendedor extraído está en el catálogo
+    vendedor = vm[1].trim().replace(/\s+/g,' ');
+    // Validar contra catálogo
     var encontrado = false;
     for(var zz in ZONAS){
       if(ZONAS[zz].indexOf(vendedor) >= 0){ encontrado = true; break; }
     }
-    if(!encontrado) vendedor = ''; // Si no está en catálogo, pedir selección manual
+    if(!encontrado) vendedor = '';
   }
   var fm = texto.match(/Folio:\s*(\d+)/i);
   if(fm) folio = fm[1];
