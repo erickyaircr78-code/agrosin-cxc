@@ -548,7 +548,10 @@ function vistaUpload(vendedor){
   zone.innerHTML = '<div style="font-size:48px;margin-bottom:12px">📄</div>'+
     '<div style="font-size:18px;font-weight:700;color:var(--tex);margin-bottom:6px">Arrastra el PDF aquí o haz clic para seleccionar</div>'+
     '<div style="font-size:13px;color:var(--gri)">Hoja de entrega de documentos exportada desde Microsip</div>';
-  zone.addEventListener('click', function(){ el('inputPDF').click(); });
+  zone.addEventListener('click', function(){
+    el('inputPDF').value = '';  // Forzar reset para permitir mismo archivo
+    el('inputPDF').click();
+  });
   zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag'); });
   zone.addEventListener('dragleave', function(){ zone.classList.remove('drag'); });
   zone.addEventListener('drop', function(e){
@@ -643,6 +646,7 @@ function extraerFacturas(texto){
       estado: 'pendiente'
     });
   }
+  console.log('Extracción: vendedor='+vendedor+' folio='+folio+' facturas='+facturas.length);
   return {vendedor:vendedor, folioHoja:folio, fecha:fecha, facturas:facturas};
 }
 
