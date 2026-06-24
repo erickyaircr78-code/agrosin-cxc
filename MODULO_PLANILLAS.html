@@ -273,7 +273,6 @@ function cargarSidebar(){
     '<div class="sbs-row"><span class="sbs-l">Sin planilla</span><span class="sbs-v" id="sbSin">…</span></div>';
   var count=0, done=0;
   vends.forEach(function(v){
-    console.log('Buscando:', 'planillas/'+G.zona+'/'+key(v));
     db.ref('planillas/'+G.zona+'/'+key(v)).orderByChild('ts').limitToLast(1).once('value').then(function(s){
       var d=s.val();
       if(d){ var h=Object.values(d)[0]; if(h&&h.estado==='activa') count++; }
@@ -293,7 +292,6 @@ function cargarMain(){
   var vends=ZONAS[G.zona]||[];
   var results=[], done=0;
   vends.forEach(function(v){
-    console.log('Buscando:', 'planillas/'+G.zona+'/'+key(v));
     db.ref('planillas/'+G.zona+'/'+key(v)).orderByChild('ts').limitToLast(1).once('value').then(function(s){
       var d=s.val();
       results.push({ vendor:v, hoja:d?Object.values(d)[0]:null, hojaKey:d?Object.keys(d)[0]:null });
@@ -613,18 +611,28 @@ function setProceso(txt, pct){
 // ── EXTRAER FACTURAS (44/44 verificado con pdfjs) ────────
 function extraerFacturas(texto){
   var vendedor='', folio='', fecha='';
-  console.log('Texto recibido (primeros 300 chars):', texto.substring(0,300));
-  console.log('Longitud total:', texto.length);
+
 
   // Limpiar marcas de página del PDF
   texto = texto.replace(/\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}[^A-Z]+\d+\s*/gi, ' ');
   // Normalizar espacios (pdfjs retorna texto como una línea larga)
   texto = texto.replace(/\s+/g, ' ');
 
-  // Extraer encabezado
-  var vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]{2,30})(?=Folio|Fecha|\d{2}\/)/i);
-  if(!vm) vm = texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+)*)/i);
-  if(vm) vendedor = vm[1].trim().replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'').replace(/\s+/g,' ').trim();
+  // Extraer encabezado — múltiples patrones para mayor robustez
+  var vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]{2,30?})(?=\s+Folio\s+Clave|\s+\d{2}\/\d{2}\/\d{4})/i);
+  if(!vm) vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]{2,25})(?=Folio|Fecha)/i);
+  if(!vm) vm = texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+){0,3})/i);
+  if(vm){
+    vendedor = vm[1].trim()
+      .replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'')
+      .replace(/Descripci.*$/i,'').replace(/\s+/g,' ').trim();
+    // Validar que el vendedor extraído está en el catálogo
+    var encontrado = false;
+    for(var zz in ZONAS){
+      if(ZONAS[zz].indexOf(vendedor) >= 0){ encontrado = true; break; }
+    }
+    if(!encontrado) vendedor = ''; // Si no está en catálogo, pedir selección manual
+  }
   var fm = texto.match(/Folio:\s*(\d+)/i);
   if(fm) folio = fm[1];
   var dm = texto.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/i);
@@ -648,7 +656,6 @@ function extraerFacturas(texto){
       estado: 'pendiente'
     });
   }
-  console.log('Extracción: vendedor='+vendedor+' folio='+folio+' facturas='+facturas.length);
   return {vendedor:vendedor, folioHoja:folio, fecha:fecha, facturas:facturas};
 }
 
@@ -772,8 +779,6 @@ function activar(){
     totalFacturas:data.facturas.length, cobradas:0, facturas:facts
   };
 
-  console.log('Guardando en:', 'planillas/'+zonaV+'/'+k+'/'+ts);
-  console.log('Vendedor:', vendedor, '| Zona:', zonaV, '| Key:', k);
   db.ref('planillas/'+zonaV+'/'+k+'/'+ts).set(planilla).then(function(){
     G.pdfData = null;
     var saldo = Object.values(facts).reduce(function(s,f){ return s+(f.saldo||0); },0);
