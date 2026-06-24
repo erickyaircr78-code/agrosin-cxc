@@ -613,6 +613,8 @@ function setProceso(txt, pct){
 // ── EXTRAER FACTURAS (44/44 verificado con pdfjs) ────────
 function extraerFacturas(texto){
   var vendedor='', folio='', fecha='';
+  console.log('Texto recibido (primeros 300 chars):', texto.substring(0,300));
+  console.log('Longitud total:', texto.length);
 
   // Limpiar marcas de página del PDF
   texto = texto.replace(/\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}[^A-Z]+\d+\s*/gi, ' ');
