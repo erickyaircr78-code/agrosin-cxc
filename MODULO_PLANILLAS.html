@@ -6,32 +6,25 @@
 <title>Ferregama · Planillas</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--ora:#F15A24;--mar:#07101F;--ver:#15803d;--roj:#dc2626;--ama:#d97706;--gri:#64748b;--bor:#E2E8F0;--fon:#F4F5F7;--bla:#fff;--tex:#07101F}
 body{font-family:'Montserrat',sans-serif;background:var(--fon);min-height:100vh;display:flex;flex-direction:column}
-
-/* TOPBAR */
 .topbar{background:var(--mar);height:52px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .brand{color:var(--ora);font-size:17px;font-weight:800;letter-spacing:1.5px}
 .brand span{color:#fff}
-.tb-center{font-size:12px;color:rgba(255,255,255,0.45);font-weight:500}
 .tb-right{display:flex;align-items:center;gap:14px}
 .conn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.5)}
 .cdot{width:7px;height:7px;border-radius:50%;background:#86efac;animation:pp 2s ease-in-out infinite}
 .cdot.off{background:#fca5a5;animation:none}
 @keyframes pp{0%,100%{opacity:1}50%{opacity:.3}}
 .u-chip{background:rgba(255,255,255,0.1);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;color:#fff;cursor:pointer;border:0.5px solid rgba(255,255,255,0.15)}
-.u-chip:hover{background:rgba(255,255,255,0.15)}
-
-/* LAYOUT */
 .layout{display:flex;flex:1;overflow:hidden}
-
-/* SIDEBAR */
 .sidebar{width:240px;background:var(--bla);border-right:0.5px solid var(--bor);overflow-y:auto;flex-shrink:0;padding:20px 14px}
 .sb-title{font-size:10px;font-weight:700;color:var(--gri);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
 .sb-user{display:flex;flex-direction:column;gap:5px;margin-bottom:20px}
-.su{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;user-select:none}
+.su{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1.5px solid transparent;user-select:none;transition:all .15s}
 .su:hover{background:var(--fon)}
 .su.act{background:#FFF7ED;border-color:var(--ora)}
 .su-av{width:36px;height:36px;border-radius:50%;background:var(--fon);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--gri);flex-shrink:0;transition:all .15s}
@@ -39,63 +32,57 @@ body{font-family:'Montserrat',sans-serif;background:var(--fon);min-height:100vh;
 .su-name{font-size:13px;font-weight:700;color:var(--tex)}
 .su-zona{font-size:10px;color:var(--gri)}
 .sb-divider{border:none;border-top:0.5px solid var(--bor);margin:6px 0 14px}
-.sb-stats{}
 .sbs-row{display:flex;justify-content:space-between;padding:6px 4px;border-bottom:0.5px solid var(--fon)}
 .sbs-row:last-child{border-bottom:none}
 .sbs-l{font-size:11px;color:var(--gri)}
 .sbs-v{font-size:12px;font-weight:700;color:var(--tex)}
 .sbs-v.ora{color:var(--ora)}
-
-/* MAIN */
 .main{flex:1;overflow-y:auto;padding:28px 32px}
-
-/* ESTADO VACÍO */
 .empty{text-align:center;padding:80px 20px;color:var(--gri)}
 .empty-icon{font-size:52px;margin-bottom:14px}
 .empty-title{font-size:18px;font-weight:700;color:var(--tex);margin-bottom:6px}
 .empty-sub{font-size:13px}
-
-/* MAIN HEADER */
-.mh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.mh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
 .mh-title{font-size:24px;font-weight:800;color:var(--tex)}
 .mh-sub{font-size:13px;color:var(--gri);margin-top:3px}
-.btn-ora{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;background:var(--ora);color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.mh-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-ora{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;background:var(--ora);color:#fff;border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
 .btn-ora:hover{background:#d94d1a}
 .btn-ora:disabled{background:#94a3b8;cursor:default}
-.btn-sec{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:transparent;color:var(--gri);border:1.5px solid var(--bor);border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-sec{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;background:transparent;color:var(--gri);border:1.5px solid var(--bor);border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
 .btn-sec:hover{background:var(--fon)}
-.btn-mar{display:inline-flex;align-items:center;gap:7px;padding:11px 20px;background:var(--mar);color:var(--ora);border:1.5px solid var(--ora);border-radius:10px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
-.btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
-
-/* TABS */
 .tabs{display:flex;border-bottom:0.5px solid var(--bor);margin-bottom:24px}
-.tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--gri);cursor:pointer;border-bottom:2.5px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'Montserrat',sans-serif;transition:all .15s}
+.tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--gri);cursor:pointer;border-bottom:2.5px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'Montserrat',sans-serif}
 .tab.act{color:var(--ora);border-bottom-color:var(--ora)}
+.tab.azul{color:#1D4ED8}
+.tab.azul.act{color:#1D4ED8;border-bottom-color:#1D4ED8}
 .tc{display:none}
 .tc.act{display:block}
-
-/* PLANILLA CARDS */
 .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-.pc{background:var(--bla);border-radius:12px;border:0.5px solid var(--bor);overflow:hidden;transition:box-shadow .15s}
+.pc{background:var(--bla);border-radius:12px;border:0.5px solid var(--bor);overflow:hidden}
 .pc:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08)}
 .pc-head{background:var(--mar);padding:13px 16px;display:flex;justify-content:space-between;align-items:flex-start}
 .pc-vend{font-size:14px;font-weight:700;color:#fff}
 .pc-hoja{font-size:10px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;margin-top:2px}
-.pc-est{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700;background:rgba(253,186,116,0.2);color:#FCD34D}
+.pc-est{font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.pc-est.activa{background:rgba(253,186,116,0.2);color:#FCD34D}
+.pc-est.cerrada{background:rgba(134,239,172,0.2);color:#86EFAC}
 .pc-body{padding:14px 16px}
 .pc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
 .pcs{background:var(--fon);border-radius:8px;padding:10px;text-align:center}
 .pcs-v{font-size:18px;font-weight:800;color:var(--tex)}
 .pcs-v.ora{color:var(--ora)}
 .pcs-l{font-size:9px;color:var(--gri);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
-.pc-bar-bg{height:4px;background:var(--fon);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.pc-bar{height:4px;background:var(--fon);border-radius:10px;overflow:hidden;margin-bottom:10px}
 .pc-bar-fill{height:100%;background:var(--ora);border-radius:10px}
-.pc-footer{display:flex;justify-content:space-between;align-items:center}
+.pc-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
 .pc-cargada{font-size:11px;color:var(--gri)}
-.btn-ver{padding:6px 14px;background:var(--fon);border:0.5px solid var(--bor);border-radius:6px;font-size:11px;font-weight:700;color:var(--tex);cursor:pointer;font-family:'Montserrat',sans-serif}
-.btn-ver:hover{background:var(--bor)}
-
-/* TABLA */
+.pc-btns{display:flex;gap:5px;flex-wrap:wrap}
+.btn-card{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;border:1px solid}
+.btn-ver-c{background:var(--fon);border-color:var(--bor);color:var(--tex)}
+.btn-xls-c{background:#217346;border-color:#217346;color:#fff}
+.btn-cerrar-c{background:#EFF6FF;border-color:#BFDBFE;color:#1D4ED8}
+.btn-borrar-c{background:#FEF2F2;border-color:#FECACA;color:var(--roj)}
 .tbl{background:var(--bla);border-radius:12px;border:0.5px solid var(--bor);overflow:hidden}
 .tbl-head{display:grid;padding:9px 16px;background:var(--mar);gap:8px}
 .th{font-size:9px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:.8px}
@@ -103,77 +90,63 @@ body{font-family:'Montserrat',sans-serif;background:var(--fon);min-height:100vh;
 .tbl-row:last-child{border-bottom:none}
 .tbl-row:hover{background:#FFFBF8}
 .td{font-size:12px;color:var(--tex)}
-.td.mo{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gri)}
 .td.b{font-weight:700}
-.td.o{color:var(--ora);font-weight:700}
 .td.g{color:var(--gri)}
-.bdg{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
-.bdg-r{background:#FEE2E2;color:#991B1B}
-.bdg-a{background:#FEF3C7;color:#92400E}
-.bdg-v{background:#DCFCE7;color:#166534}
-
-/* UPLOAD */
-.upload-zone{border:2.5px dashed var(--bor);border-radius:14px;padding:52px 32px;text-align:center;cursor:pointer;background:var(--bla);transition:all .2s;margin-bottom:20px}
+.tdg{background:var(--fon);border-radius:8px;padding:10px;text-align:center}
+.tdg-v{font-size:18px;font-weight:800;color:var(--tex)}
+.tdg-l{font-size:9px;color:var(--gri);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.upload-zone{border:2.5px dashed var(--bor);border-radius:14px;padding:52px 32px;text-align:center;cursor:pointer;background:var(--bla);margin-bottom:20px}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--ora);background:#FFF7ED}
-.upload-icon{font-size:52px;margin-bottom:14px}
-.upload-title{font-size:18px;font-weight:700;color:var(--tex);margin-bottom:6px}
-.upload-sub{font-size:13px;color:var(--gri)}
-.upload-preview{background:#f0fdf4;border:1.5px solid #BBF7D0;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px}
-.up-icon{font-size:30px;flex-shrink:0}
-.up-name{font-size:14px;font-weight:700;color:var(--ver)}
-.up-size{font-size:11px;color:var(--gri);margin-top:2px}
-.up-quit{background:none;border:none;color:var(--roj);font-size:18px;cursor:pointer;margin-left:auto;padding:6px}
-
-/* PROCESANDO */
 .proc{background:var(--mar);border-radius:14px;padding:36px;text-align:center;color:#fff;margin-bottom:20px}
 .proc-sp{font-size:44px;margin-bottom:14px;animation:spin 1s linear infinite;display:inline-block}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.proc-title{font-size:17px;font-weight:700;margin-bottom:4px}
-.proc-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:18px}
-.proc-bar{height:6px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden;max-width:400px;margin:0 auto}
+.proc-bar{height:6px;background:rgba(255,255,255,0.15);border-radius:10px;overflow:hidden;max-width:400px;margin:8px auto 0}
 .proc-fill{height:100%;background:var(--ora);border-radius:10px;transition:width .5s ease}
-
-/* BANNER RESULTADO */
 .res-banner{background:var(--mar);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
 .rb-vend{font-size:20px;font-weight:800;color:var(--ora)}
 .rb-hoja{font-size:12px;color:rgba(255,255,255,0.4);margin-top:3px}
 .rb-stats{display:flex;gap:24px}
 .rb-s{text-align:center}
-.rb-s-v{font-size:22px;font-weight:800;color:#fff}
-.rb-s-l{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
-
-/* SELECTOR MANUAL */
+.rb-sv{font-size:22px;font-weight:800;color:#fff}
+.rb-sl{font-size:10px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.bdg{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.bdg-r{background:#FEE2E2;color:#991B1B}
+.bdg-a{background:#FEF3C7;color:#92400E}
+.bdg-v{background:#DCFCE7;color:#166534}
 .vend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px}
-.vend-sel-btn{background:var(--bla);border:1.5px solid var(--bor);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .15s}
-.vend-sel-btn:hover{border-color:var(--ora);background:#FFF7ED}
-.vend-sel-name{font-size:13px;font-weight:700;color:var(--tex)}
-.vend-sel-zona{font-size:10px;color:var(--gri);margin-top:3px}
-
-/* MODAL */
+.vsb{background:var(--bla);border:1.5px solid var(--bor);border-radius:10px;padding:14px;text-align:center;cursor:pointer}
+.vsb:hover{border-color:var(--ora);background:#FFF7ED}
+.vsb-name{font-size:13px;font-weight:700;color:var(--tex)}
+.vsb-zona{font-size:10px;color:var(--gri);margin-top:3px}
 .modal-bg{position:fixed;inset:0;background:rgba(7,16,31,0.65);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-box{background:var(--bla);border-radius:16px;width:100%;max-width:720px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal-box{background:var(--bla);border-radius:16px;width:100%;max-width:720px;max-height:88vh;overflow-y:auto}
 .modal-head{background:var(--mar);padding:16px 22px;border-radius:16px 16px 0 0;display:flex;align-items:center;justify-content:space-between}
 .modal-title{font-size:15px;font-weight:700;color:#fff}
-.modal-close{background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:16px;width:30px;height:30px;border-radius:7px;cursor:pointer;font-family:'Montserrat',sans-serif;display:flex;align-items:center;justify-content:center}
+.modal-close{background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:16px;width:30px;height:30px;border-radius:7px;cursor:pointer;font-family:'Montserrat',sans-serif}
 .modal-body{padding:22px}
-
-/* TOAST */
 .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999}
 .toast{background:var(--mar);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transform:translateX(20px);transition:all .3s;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(0)}
 .toast.ok{background:var(--ver)}
 .toast.err{background:var(--roj)}
 .toast.warn{background:var(--ama)}
-
 input[type=file]{display:none}
 .sec-lbl{font-size:11px;font-weight:700;color:var(--gri);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.hist-card{background:var(--bla);border-radius:10px;border:0.5px solid var(--bor);margin-bottom:8px;overflow:hidden;opacity:0.85}
+.hist-head{background:#374151;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.hist-vend{font-size:13px;font-weight:700;color:#fff}
+.hist-hoja{font-size:9px;color:rgba(255,255,255,0.4);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.hist-body{padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.hist-info{font-size:11px;color:var(--gri)}
+.hist-info strong{color:var(--tex);display:block;margin-bottom:2px}
+.warn-box{background:#FEF3C7;border-radius:8px;padding:8px 12px;font-size:10px;color:#92400E;margin-top:8px}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="brand">FERRE<span>GAMA</span></div>
-  <div class="tb-center">Módulo de Planillas · Entrega de Documentos</div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.45)">Módulo de Planillas · Entrega de Documentos</div>
   <div class="tb-right">
     <div class="conn"><span class="cdot" id="cdot"></span><span id="clbl">Conectando…</span></div>
     <div class="u-chip" id="uChip">👤 Seleccionar</div>
@@ -181,22 +154,18 @@ input[type=file]{display:none}
 </div>
 
 <div class="layout">
-
   <div class="sidebar">
     <div class="sb-title">Equipo de entrega</div>
-    <div class="sb-user">
-      <div class="su" onclick="selUser('LUPE','CDMX',this)"><div class="su-av">LU</div><div><div class="su-name">Lupe</div><div class="su-zona">CDMX</div></div></div>
-      <div class="su" onclick="selUser('CARI','CDMX',this)"><div class="su-av">CA</div><div><div class="su-name">Cari</div><div class="su-zona">CDMX</div></div></div>
-      <div class="su" onclick="selUser('KAREN','MORELOS',this)"><div class="su-av">KA</div><div><div class="su-name">Karen</div><div class="su-zona">Morelos</div></div></div>
-      <div class="su" onclick="selUser('JENNIFER','MORELOS',this)"><div class="su-av">JE</div><div><div class="su-name">Jennifer</div><div class="su-zona">Morelos</div></div></div>
-      <div class="su" onclick="selUser('NANCY','PUEBLA',this)"><div class="su-av">NA</div><div><div class="su-name">Nancy</div><div class="su-zona">Puebla</div></div></div>
-      <div class="su" onclick="selUser('SAMANTA','PUEBLA',this)"><div class="su-av">SA</div><div><div class="su-name">Samanta</div><div class="su-zona">Puebla</div></div></div>
+    <div class="sb-user" id="sbUsers">
+      <div class="su" id="su-LUPE"><div class="su-av">LU</div><div><div class="su-name">Lupe</div><div class="su-zona">CDMX</div></div></div>
+      <div class="su" id="su-CARI"><div class="su-av">CA</div><div><div class="su-name">Cari</div><div class="su-zona">CDMX</div></div></div>
+      <div class="su" id="su-KAREN"><div class="su-av">KA</div><div><div class="su-name">Karen</div><div class="su-zona">Morelos</div></div></div>
+      <div class="su" id="su-JENNIFER"><div class="su-av">JE</div><div><div class="su-name">Jennifer</div><div class="su-zona">Morelos</div></div></div>
+      <div class="su" id="su-NANCY"><div class="su-av">NA</div><div><div class="su-name">Nancy</div><div class="su-zona">Puebla</div></div></div>
+      <div class="su" id="su-SAMANTA"><div class="su-av">SA</div><div><div class="su-name">Samanta</div><div class="su-zona">Puebla</div></div></div>
     </div>
     <hr class="sb-divider">
-    <div class="sb-stats" id="sbStats">
-      <div class="sb-title">Mi zona</div>
-      <div style="font-size:12px;color:var(--gri);padding:8px 4px">Selecciona tu nombre</div>
-    </div>
+    <div id="sbStats"><div style="font-size:12px;color:var(--gri);padding:8px 4px">Selecciona tu nombre</div></div>
   </div>
 
   <div class="main" id="main">
@@ -206,10 +175,9 @@ input[type=file]{display:none}
       <div class="empty-sub">Selecciona tu nombre en el panel izquierdo para comenzar</div>
     </div>
   </div>
-
 </div>
 
-<div class="modal-bg" id="modalDet" style="display:none">
+<div class="modal-bg" id="modalDet" style="display:none" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal-box">
     <div class="modal-head">
       <div class="modal-title" id="modalTit">Detalle</div>
@@ -222,11 +190,9 @@ input[type=file]{display:none}
 <div class="toast-wrap"><div class="toast" id="toast"></div></div>
 <input type="file" id="inputPDF" accept="application/pdf" onchange="onPDF(this)">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
-// ── INIT ──────────────────────────────────────────────
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 firebase.initializeApp({
@@ -240,334 +206,443 @@ firebase.initializeApp({
 });
 var db = firebase.database();
 
-// ── ESTADO GLOBAL ──────────────────────────────────────
+// ── ESTADO ──────────────────────────────────────────────
 var G = { user:'', zona:'', pdfData:null };
 
-// ── CATÁLOGOS ──────────────────────────────────────────
+// ── CATÁLOGOS ────────────────────────────────────────────
 var ZONAS = {
   CDMX:["ABRAHAM","ALFREDO","ANTONIO","CARLOS RONQUILLO","CASAUBON","CUAUHTEMOC","DANIEL M","ELVIRA","ESPERANZA","FELIX","FERNANDO GOMEZ","GERARDO HERNANDEZ","ISRAEL ODIN","JOSE LABASTIDA","JOSE RAMOS","JUAN OCAÑA","LUIS VENTURA","MANUEL TORRES","OLGA","OLGA ORTIZ","PATY GARCIA","RAYMUNDO LOPEZ","RICARDO BARRERA","ROBERTO","RODRIGO GONZALEZ","ROXANA"],
   MORELOS:["DAVID VEGA","EMMANUEL","ENRIQUE","ENRIQUE ACAP","EVA JOAQUIN","IRMA HDZ","ISRAEL","JOSUE","JUAN CARLOS","MARTIN REYES","RICARDO FIGUEROA","ROBERTO HDEZ","ULISES","VICTOR HUGO"],
   PUEBLA:["ALBERTO GARCIA","EMILIO","JORGE","JOSE HERNANDEZ","MARCO ANTONIO","RICARDO HDZ J","RICARDO PEREZ","ROSENDO"]
 };
+var USUARIOS = {
+  LUPE:'CDMX', CARI:'CDMX', KAREN:'MORELOS',
+  JENNIFER:'MORELOS', NANCY:'PUEBLA', SAMANTA:'PUEBLA'
+};
 
-// ── HELPERS ────────────────────────────────────────────
-function $(id){ return document.getElementById(id); }
+// ── HELPERS ──────────────────────────────────────────────
 function fmt(n){ return (+n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function key(v){ return v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'_').toUpperCase(); }
-function zonaDeVendedor(v){ for(var z in ZONAS){ if(ZONAS[z].indexOf(v)>=0) return z; } return G.zona; }
+function getZona(v){ for(var z in ZONAS){ if(ZONAS[z].indexOf(v)>=0) return z; } return G.zona; }
+function el(id){ return document.getElementById(id); }
 
-// ── CONEXIÓN ───────────────────────────────────────────
+// ── CONEXIÓN ─────────────────────────────────────────────
 db.ref('.info/connected').on('value',function(s){
   var ok=s.val()===true;
-  $('cdot').className='cdot'+(ok?'':' off');
-  $('clbl').textContent=ok?'En línea ✓':'Sin internet ✗';
+  el('cdot').className='cdot'+(ok?'':' off');
+  el('clbl').textContent=ok?'En línea ✓':'Sin internet ✗';
 });
 
-// ── SELECCIONAR USUARIO ────────────────────────────────
-function selUser(nombre,zona,el){
+// ── INICIALIZAR SIDEBAR CON EVENT LISTENERS ──────────────
+(function initSidebar(){
+  var datos = [
+    {id:'su-LUPE',  nombre:'LUPE',     zona:'CDMX'},
+    {id:'su-CARI',  nombre:'CARI',     zona:'CDMX'},
+    {id:'su-KAREN', nombre:'KAREN',    zona:'MORELOS'},
+    {id:'su-JENNIFER',nombre:'JENNIFER',zona:'MORELOS'},
+    {id:'su-NANCY', nombre:'NANCY',    zona:'PUEBLA'},
+    {id:'su-SAMANTA',nombre:'SAMANTA', zona:'PUEBLA'}
+  ];
+  datos.forEach(function(d){
+    var elem = el(d.id);
+    if(!elem) return;
+    elem.addEventListener('click', function(){
+      selUser(d.nombre, d.zona, elem);
+    });
+  });
+})();
+
+// ── SELECCIONAR USUARIO ───────────────────────────────────
+function selUser(nombre, zona, elem){
   document.querySelectorAll('.su').forEach(function(b){ b.classList.remove('act'); });
-  el.classList.add('act');
-  G.user=nombre; G.zona=zona;
-  $('uChip').textContent=(zona==='CDMX'?'🏙':zona==='MORELOS'?'🌿':'⛪')+' '+nombre;
+  elem.classList.add('act');
+  G.user = nombre;
+  G.zona = zona;
+  el('uChip').textContent = (zona==='CDMX'?'🏙':zona==='MORELOS'?'🌿':'⛪')+' '+nombre;
   cargarSidebar();
   cargarMain();
 }
 
-// ── SIDEBAR STATS ──────────────────────────────────────
+// ── SIDEBAR STATS ─────────────────────────────────────────
 function cargarSidebar(){
-  var vends=ZONAS[G.zona]||[];
-  $('sbStats').innerHTML='<div class="sb-title">Zona '+G.zona+'</div>'+
+  var vends = ZONAS[G.zona]||[];
+  el('sbStats').innerHTML =
+    '<div class="sb-title">Zona '+G.zona+'</div>'+
     '<div class="sbs-row"><span class="sbs-l">Vendedores</span><span class="sbs-v">'+vends.length+'</span></div>'+
     '<div class="sbs-row"><span class="sbs-l">Con planilla activa</span><span class="sbs-v ora" id="sbActivas">…</span></div>'+
     '<div class="sbs-row"><span class="sbs-l">Sin planilla</span><span class="sbs-v" id="sbSin">…</span></div>';
-  contarActivas(vends);
-}
-
-function contarActivas(vends){
-  var count=0; var done=0;
+  var count=0, done=0;
   vends.forEach(function(v){
     db.ref('planillas/'+G.zona+'/'+key(v)).orderByChild('ts').limitToLast(1).once('value').then(function(s){
       var d=s.val();
       if(d){ var h=Object.values(d)[0]; if(h&&h.estado==='activa') count++; }
       done++;
       if(done===vends.length){
-        var sinEl=$('sbSin'); var actEl=$('sbActivas');
-        if(actEl) actEl.textContent=count;
-        if(sinEl) sinEl.textContent=(vends.length-count);
+        var a=el('sbActivas'), b=el('sbSin');
+        if(a) a.textContent=count;
+        if(b) b.textContent=vends.length-count;
       }
     });
   });
 }
 
-// ── MAIN: VISTA PLANILLAS ──────────────────────────────
+// ── CARGAR MAIN ───────────────────────────────────────────
 function cargarMain(){
-  $('main').innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Cargando planillas…</div></div>';
+  el('main').innerHTML='<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Cargando planillas…</div></div>';
   var vends=ZONAS[G.zona]||[];
-  var results=[]; var done=0;
+  var results=[], done=0;
   vends.forEach(function(v){
     db.ref('planillas/'+G.zona+'/'+key(v)).orderByChild('ts').limitToLast(1).once('value').then(function(s){
       var d=s.val();
-      results.push({vendor:v, hoja:d?Object.values(d)[0]:null, hojaKey:d?Object.keys(d)[0]:null});
+      results.push({ vendor:v, hoja:d?Object.values(d)[0]:null, hojaKey:d?Object.keys(d)[0]:null });
       done++;
       if(done===vends.length) renderMain(results);
     }).catch(function(){ done++; results.push({vendor:v,hoja:null}); if(done===vends.length) renderMain(results); });
   });
 }
 
+// ── RENDER MAIN ───────────────────────────────────────────
 function renderMain(results){
-  var activas=results.filter(function(r){ return r.hoja&&r.hoja.estado==='activa'; });
-  var sin=results.filter(function(r){ return !r.hoja||r.hoja.estado!=='activa'; });
-  var html=
-    '<div class="mh">'+
-      '<div><div class="mh-title">Zona '+G.zona+'</div><div class="mh-sub">'+results.length+' vendedores · '+activas.length+' con planilla activa</div></div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-      '<button class="btn-ora" onclick="vistaUpload()">📄 Cargar nueva planilla</button>'+
-      '<button class="btn-sec" onclick="descargarTodas(\'excel\')">📊 Mis planillas Excel</button>'+
-      '<button class="btn-sec" onclick="descargarTodas(\'csv\')">📄 Mis planillas CSV</button>'+
-      '</div>'+
-    '</div>'+
-    '<div class="tabs">'+
-      '<button class="tab act" onclick="setTab(\'act\',this)">Planillas activas ('+activas.length+')</button>'+
-      '<button class="tab" onclick="setTab(\'sin\',this)">Sin planilla ('+sin.length+')</button>'+
-      '<button class="tab" style="color:#1D4ED8" onclick="setTab(\'hist\',this)">Historial</button>'+
-    '</div>'+
-    '<div class="tc act" id="tc-act">';
+  var activas = results.filter(function(r){ return r.hoja&&r.hoja.estado==='activa'; });
+  var sin     = results.filter(function(r){ return !r.hoja||r.hoja.estado!=='activa'; });
 
-  if(!activas.length){
-    html+='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin planillas activas</div><div class="empty-sub">Carga la primera planilla de tu zona usando el botón de arriba</div></div>';
-  } else {
-    html+='<div class="cards-grid">';
-    activas.forEach(function(r){
-      var h=r.hoja;
-      var total=h.totalFacturas||0;
-      var cob=h.cobradas||0;
-      var pct=total>0?Math.round(cob/total*100):0;
-      var saldo=0;
-      if(h.facturas) Object.values(h.facturas).forEach(function(f){ saldo+=f.saldo||0; });
-      var safeR=JSON.stringify({vendor:r.vendor,hoja:h}).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
-      html+=
-        '<div class="pc">'+
-          '<div class="pc-head">'+
-            '<div><div class="pc-vend">'+r.vendor+'</div><div class="pc-hoja">Hoja '+h.folio_hoja+' · '+h.fecha+'</div></div>'+
-            '<span class="pc-est">Activa</span>'+
-          '</div>'+
-          '<div class="pc-body">'+
-            '<div class="pc-stats">'+
-              '<div class="pcs"><div class="pcs-v">'+total+'</div><div class="pcs-l">Facturas</div></div>'+
-              '<div class="pcs"><div class="pcs-v">'+cob+'</div><div class="pcs-l">Cobradas</div></div>'+
-              '<div class="pcs"><div class="pcs-v ora">$'+Math.round(saldo/1000)+'K</div><div class="pcs-l">Saldo</div></div>'+
-            '</div>'+
-            '<div class="pc-bar-bg"><div class="pc-bar-fill" style="width:'+pct+'%"></div></div>'+
-            '<div class="pc-footer">'+
-              '<span class="pc-cargada">'+(h.cargadaPor===G.user?'✓ Cargada por ti':'Cargada por '+h.cargadaPor)+'</span>'+
-              '<button class="btn-ver" onclick="verDetalle(\''+safeR+'\')">Ver</button>'+
-              (h.cargadaPor===G.user ?
-                '<button class="btn-ver" style="background:#217346;color:#fff;border:none" onclick="descargarPlanilla(\\''+safeR+'\\',\\'excel\\')">📊</button>'+
-                '<button class="btn-ver" style="background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE" onclick="cerrarPlanillaConfirm(\\''+safeR+'\\')">✓</button>'+
-                '<button class="btn-ver" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA" onclick="borrarPlanillaConfirm(\\''+safeR+'\\')">🗑</button>'
-              : '')'+
-            '</div>'+
-          '</div>'+
-        '</div>';
-    });
-    html+='</div>';
-  }
-  html+='</div><div class="tc" id="tc-sin"><div class="tbl">'+
-    '<div class="tbl-head" style="grid-template-columns:1fr 100px 180px"><div class="th">Vendedor</div><div class="th">Zona</div><div class="th">Acción</div></div>';
-  sin.forEach(function(r){
-    html+='<div class="tbl-row" style="grid-template-columns:1fr 100px 180px">'+
-      '<div class="td b">'+r.vendor+'</div>'+
-      '<div class="td g">'+G.zona+'</div>'+
-      '<div><button class="btn-ora" style="padding:6px 14px;font-size:12px" onclick="vistaUploadPara(\''+r.vendor+'\')">📄 Cargar planilla</button></div>'+
-    '</div>';
+  var main = el('main');
+
+  // HEADER
+  var header = document.createElement('div');
+  header.className = 'mh';
+  header.innerHTML =
+    '<div><div class="mh-title">Zona '+G.zona+'</div>'+
+    '<div class="mh-sub">'+results.length+' vendedores · '+activas.length+' con planilla activa</div></div>';
+  var btnNueva = document.createElement('button');
+  btnNueva.className = 'btn-ora';
+  btnNueva.textContent = '📄 Cargar nueva planilla';
+  btnNueva.addEventListener('click', function(){ vistaUpload(); });
+  header.appendChild(btnNueva);
+
+  // TABS
+  var tabsDiv = document.createElement('div');
+  tabsDiv.className = 'tabs';
+  var tabData = [
+    {id:'tc-act', label:'Planillas activas ('+activas.length+')', cls:''},
+    {id:'tc-sin', label:'Sin planilla ('+sin.length+')', cls:''},
+    {id:'tc-hist', label:'Historial', cls:'azul'}
+  ];
+  tabData.forEach(function(t, i){
+    var btn = document.createElement('button');
+    btn.className = 'tab'+(i===0?' act':'')+(t.cls?' '+t.cls:'');
+    btn.textContent = t.label;
+    btn.addEventListener('click', (function(tid, b){ return function(){ setTab(tid, b); }; })(t.id, btn));
+    tabsDiv.appendChild(btn);
   });
-  html+='</div></div>';
-  // Tab historial
-  html+='<div class="tc" id="tc-hist">';
-  html+='<div id="historialContainer"><div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Cargando historial…</div></div></div>';
-  html+='</div>';
 
-  $('main').innerHTML=html;
+  // TAB ACTIVAS
+  var tcAct = document.createElement('div');
+  tcAct.className = 'tc act';
+  tcAct.id = 'tc-act';
+  if(!activas.length){
+    tcAct.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin planillas activas</div><div class="empty-sub">Carga la primera planilla usando el botón de arriba</div></div>';
+  } else {
+    var grid = document.createElement('div');
+    grid.className = 'cards-grid';
+    activas.forEach(function(r){
+      grid.appendChild(buildCard(r, false));
+    });
+    tcAct.appendChild(grid);
+  }
+
+  // TAB SIN PLANILLA
+  var tcSin = document.createElement('div');
+  tcSin.className = 'tc';
+  tcSin.id = 'tc-sin';
+  var tbl = document.createElement('div');
+  tbl.className = 'tbl';
+  tbl.innerHTML = '<div class="tbl-head" style="grid-template-columns:1fr 100px 160px">'+
+    '<div class="th">Vendedor</div><div class="th">Zona</div><div class="th">Acción</div></div>';
+  sin.forEach(function(r){
+    var row = document.createElement('div');
+    row.className = 'tbl-row';
+    row.style.gridTemplateColumns = '1fr 100px 160px';
+    row.innerHTML = '<div class="td b">'+r.vendor+'</div><div class="td g">'+G.zona+'</div>';
+    var btnCargar = document.createElement('button');
+    btnCargar.className = 'btn-ora';
+    btnCargar.style.cssText = 'padding:6px 14px;font-size:12px';
+    btnCargar.textContent = '📄 Cargar planilla';
+    btnCargar.addEventListener('click', (function(vv){ return function(){ vistaUpload(vv); }; })(r.vendor));
+    var btnDiv = document.createElement('div');
+    btnDiv.appendChild(btnCargar);
+    row.appendChild(btnDiv);
+    tbl.appendChild(row);
+  });
+  tcSin.appendChild(tbl);
+
+  // TAB HISTORIAL
+  var tcHist = document.createElement('div');
+  tcHist.className = 'tc';
+  tcHist.id = 'tc-hist';
+  tcHist.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><div class="empty-title">Cargando historial…</div></div>';
+
+  // ENSAMBLAR
+  main.innerHTML = '';
+  main.appendChild(header);
+  main.appendChild(tabsDiv);
+  main.appendChild(tcAct);
+  main.appendChild(tcSin);
+  main.appendChild(tcHist);
+
   // Cargar historial en background
-  setTimeout(function(){ cargarHistorial(); }, 300);
+  setTimeout(function(){ cargarHistorial(); }, 400);
 }
 
+// ── BUILD CARD ────────────────────────────────────────────
+function buildCard(r, esCerrada){
+  var h = r.hoja;
+  var total = h.totalFacturas||0;
+  var cob   = h.cobradas||0;
+  var pct   = total>0?Math.round(cob/total*100):0;
+  var saldo = 0;
+  if(h.facturas) Object.values(h.facturas).forEach(function(f){ saldo+=f.saldo||0; });
+  var card = document.createElement('div');
+  card.className = 'pc';
+  var headBg = esCerrada ? '#374151' : 'var(--mar)';
+  card.innerHTML =
+    '<div class="pc-head" style="background:'+headBg+'">'+
+      '<div><div class="pc-vend">'+r.vendor+'</div>'+
+      '<div class="pc-hoja">Hoja '+h.folio_hoja+' · '+h.fecha+'</div></div>'+
+      '<span class="pc-est '+(esCerrada?'cerrada':'activa')+'">'+(esCerrada?'Cerrada':'Activa')+'</span>'+
+    '</div>'+
+    '<div class="pc-body">'+
+      '<div class="pc-stats">'+
+        '<div class="pcs"><div class="pcs-v">'+total+'</div><div class="pcs-l">Facturas</div></div>'+
+        '<div class="pcs"><div class="pcs-v">'+cob+'</div><div class="pcs-l">Cobradas</div></div>'+
+        '<div class="pcs"><div class="pcs-v ora">$'+Math.round(saldo/1000)+'K</div><div class="pcs-l">Saldo</div></div>'+
+      '</div>'+
+      '<div class="pc-bar"><div class="pc-bar-fill" style="width:'+pct+'%"></div></div>'+
+      '<div class="pc-footer">'+
+        '<span class="pc-cargada">'+(esCerrada?'Cerrada':'Cargada')+' por '+h.cargadaPor+'</span>'+
+        '<div class="pc-btns" id="btns-'+key(r.vendor)+'-'+h.ts+'"></div>'+
+      '</div>'+
+    '</div>';
+
+  // Agregar botones con event listeners — sin onclick en HTML
+  setTimeout(function(){
+    var btnsDiv = document.getElementById('btns-'+key(r.vendor)+'-'+h.ts);
+    if(!btnsDiv) return;
+
+    // Btn Ver
+    var bVer = document.createElement('button');
+    bVer.className = 'btn-card btn-ver-c';
+    bVer.textContent = 'Ver';
+    bVer.addEventListener('click', function(){ verDetalle(r); });
+    btnsDiv.appendChild(bVer);
+
+    if(h.cargadaPor === G.user){
+      // Btn Excel
+      var bXls = document.createElement('button');
+      bXls.className = 'btn-card btn-xls-c';
+      bXls.textContent = '📊';
+      bXls.addEventListener('click', function(){ descargarPlanilla(r, 'excel'); });
+      btnsDiv.appendChild(bXls);
+
+      if(!esCerrada){
+        // Btn Cerrar
+        var bCerrar = document.createElement('button');
+        bCerrar.className = 'btn-card btn-cerrar-c';
+        bCerrar.textContent = '✓ Cerrar';
+        bCerrar.addEventListener('click', function(){ cerrarPlanilla(r); });
+        btnsDiv.appendChild(bCerrar);
+      }
+
+      // Btn Borrar
+      var bBorrar = document.createElement('button');
+      bBorrar.className = 'btn-card btn-borrar-c';
+      bBorrar.textContent = '🗑';
+      bBorrar.addEventListener('click', function(){ borrarPlanilla(r); });
+      btnsDiv.appendChild(bBorrar);
+    }
+  }, 50);
+
+  return card;
+}
+
+// ── CARGAR HISTORIAL ──────────────────────────────────────
 function cargarHistorial(){
-  var cont = $('historialContainer');
-  if(!cont) return;
+  var tcHist = el('tc-hist');
+  if(!tcHist) return;
   var vends = ZONAS[G.zona]||[];
-  var cerradas = []; var done = 0;
+  var cerradas = [], done = 0;
   vends.forEach(function(v){
     db.ref('planillas/'+G.zona+'/'+key(v)).once('value').then(function(snap){
       var d = snap.val();
       if(d){
-        Object.entries(d).forEach(function(entry){
-          var k = entry[0]; var h = entry[1];
-          if(h && h.estado === 'cerrada' && h.cargadaPor === G.user){
+        Object.keys(d).forEach(function(k){
+          var h = d[k];
+          if(h && h.estado==='cerrada' && h.cargadaPor===G.user){
             cerradas.push({vendor:v, hoja:h, hojaKey:k});
           }
         });
       }
       done++;
-      if(done === vends.length){
+      if(done===vends.length){
+        tcHist.innerHTML = '';
         if(!cerradas.length){
-          if(cont) cont.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin historial aún</div><div class="empty-sub">Las planillas cerradas aparecerán aquí</div></div>';
+          tcHist.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Sin historial aún</div><div class="empty-sub">Las planillas cerradas aparecerán aquí</div></div>';
           return;
         }
         cerradas.sort(function(a,b){ return (b.hoja.ts||0)-(a.hoja.ts||0); });
-        var html='<div style="font-size:10px;font-weight:700;color:var(--gri);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">'+cerradas.length+' planilla(s) cerrada(s) — cargadas por ti</div>';
-        cerradas.forEach(function(r){
-          var h=r.hoja;
-          var saldo=0; if(h.facturas) Object.values(h.facturas).forEach(function(f){saldo+=f.montoCobrado||0;});
-          var safeR=JSON.stringify({vendor:r.vendor,hoja:h,hojaKey:r.hojaKey}).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
-          html+='<div style="background:var(--bla);border-radius:10px;border:0.5px solid var(--bor);margin-bottom:8px;overflow:hidden">'+
-            '<div style="background:#374151;padding:10px 14px;display:flex;justify-content:space-between;align-items:center">'+
-              '<div><div style="font-size:13px;font-weight:700;color:#fff">'+r.vendor+'</div>'+
-              '<div style="font-size:9px;color:rgba(255,255,255,0.4);font-family:monospace">Hoja '+h.folio_hoja+' · '+h.fecha+'</div></div>'+
-              '<span style="font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(134,239,172,0.2);color:#86EFAC">Cerrada</span>'+
-            '</div>'+
-            '<div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center">'+
-              '<div style="font-size:11px;color:var(--gri)">'+
-                '<div style="font-weight:600;color:var(--tex);margin-bottom:2px">'+(h.totalFacturas||0)+' facturas · $'+fmt(saldo)+' cobrado</div>'+
-                'Cerrada por '+h.cargadaPor+
-              '</div>'+
-              '<div style="display:flex;gap:6px">'+
-                '<button class="btn-ver" onclick="verDetalle(\''+safeR+'\')">Ver</button>'+
-                '<button class="btn-ver" style="background:#217346;color:#fff;border:none" onclick="descargarPlanilla(\''+safeR+'\',\'excel\')">📊</button>'+
-                '<button class="btn-ver" style="background:#FEF2F2;color:#DC2626;border-color:#FECACA" onclick="borrarPlanillaConfirm(\''+safeR+'\')">🗑</button>'+
-              '</div>'+
-            '</div>'+
-          '</div>';
-        });
-        if(cont) cont.innerHTML=html;
+        var lbl = document.createElement('div');
+        lbl.className = 'sec-lbl';
+        lbl.textContent = cerradas.length+' planilla(s) cerrada(s) — cargadas por ti';
+        tcHist.appendChild(lbl);
+        var grid = document.createElement('div');
+        grid.className = 'cards-grid';
+        cerradas.forEach(function(r){ grid.appendChild(buildCard(r, true)); });
+        tcHist.appendChild(grid);
+        var warn = document.createElement('div');
+        warn.className = 'warn-box';
+        warn.textContent = '⚠️ Las planillas borradas no se pueden recuperar. Los cobros registrados no se borran.';
+        tcHist.appendChild(warn);
       }
     });
   });
 }
 
-function setTab(id,el){
+// ── SET TAB ───────────────────────────────────────────────
+function setTab(id, el_btn){
   document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('act'); });
   document.querySelectorAll('.tc').forEach(function(t){ t.classList.remove('act'); });
-  el.classList.add('act');
-  $('tc-'+id).classList.add('act');
+  el_btn.classList.add('act');
+  var tc = el(id);
+  if(tc) tc.classList.add('act');
 }
 
-// ── VISTA UPLOAD ───────────────────────────────────────
+// ── VISTA UPLOAD ──────────────────────────────────────────
 function vistaUpload(vendedor){
-  G.pdfData=null;
-  $('inputPDF').value='';
-  var msg=vendedor?'<div style="background:#FFF7ED;border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:13px;font-weight:600;color:var(--ora)">📋 Para: '+vendedor+'</div>':'';
-  $('main').innerHTML=
-    '<div class="mh">'+
-      '<div><div class="mh-title">Cargar planilla</div><div class="mh-sub">Sube el PDF de Microsip — Hoja de entrega de documentos</div></div>'+
-      '<button class="btn-sec" onclick="cargarMain()">← Regresar</button>'+
-    '</div>'+
-    msg+
-    '<div class="upload-zone" id="uz" onclick="$$(\'inputPDF\').click()" ondragover="event.preventDefault();this.classList.add(\'drag\')" ondragleave="this.classList.remove(\'drag\')" ondrop="onDrop(event)">'+
-      '<div class="upload-icon">📄</div>'+
-      '<div class="upload-title">Arrastra el PDF aquí o haz clic para seleccionar</div>'+
-      '<div class="upload-sub">Hoja de entrega de documentos exportada desde Microsip</div>'+
-    '</div>';
-}
+  G.pdfData = null;
+  el('inputPDF').value = '';
+  var main = el('main');
+  main.innerHTML = '';
 
-function vistaUploadPara(v){ vistaUpload(v); }
+  var header = document.createElement('div');
+  header.className = 'mh';
+  header.innerHTML = '<div><div class="mh-title">Cargar planilla</div><div class="mh-sub">Sube el PDF de la Hoja de entrega de documentos de Microsip</div></div>';
+  var btnReg = document.createElement('button');
+  btnReg.className = 'btn-sec';
+  btnReg.textContent = '← Regresar';
+  btnReg.addEventListener('click', cargarMain);
+  header.appendChild(btnReg);
+  main.appendChild(header);
 
-function $$(id){ return document.getElementById(id); }
+  if(vendedor){
+    var msg = document.createElement('div');
+    msg.style.cssText = 'background:#FFF7ED;border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:13px;font-weight:600;color:var(--ora)';
+    msg.textContent = '📋 Para: '+vendedor;
+    main.appendChild(msg);
+  }
 
-function onDrop(e){
-  e.preventDefault();
-  $('uz')&&$('uz').classList.remove('drag');
-  var f=e.dataTransfer.files[0];
-  if(f&&f.type==='application/pdf') procesarPDF(f);
-  else toast('Solo se aceptan archivos PDF','err');
+  var zone = document.createElement('div');
+  zone.id = 'uploadZone';
+  zone.className = 'upload-zone';
+  zone.innerHTML = '<div style="font-size:48px;margin-bottom:12px">📄</div>'+
+    '<div style="font-size:18px;font-weight:700;color:var(--tex);margin-bottom:6px">Arrastra el PDF aquí o haz clic para seleccionar</div>'+
+    '<div style="font-size:13px;color:var(--gri)">Hoja de entrega de documentos exportada desde Microsip</div>';
+  zone.addEventListener('click', function(){ el('inputPDF').click(); });
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag'); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.classList.remove('drag');
+    var f = e.dataTransfer.files[0];
+    if(f&&f.type==='application/pdf') procesarPDF(f);
+    else toast('Solo se aceptan archivos PDF','err');
+  });
+  main.appendChild(zone);
 }
 
 function onPDF(input){
-  var f=input.files[0];
+  var f = input.files[0];
   if(f) procesarPDF(f);
 }
 
-// ── PROCESAR PDF ───────────────────────────────────────
+// ── PROCESAR PDF ──────────────────────────────────────────
 function procesarPDF(file){
-  $('main').innerHTML=
-    '<div class="mh"><div><div class="mh-title">Procesando…</div><div class="mh-sub">Extrayendo facturas del PDF de Microsip</div></div></div>'+
+  var main = el('main');
+  main.innerHTML =
+    '<div class="mh"><div><div class="mh-title">Procesando…</div></div></div>'+
     '<div class="proc">'+
       '<div class="proc-sp">⚙️</div>'+
-      '<div class="proc-title">Leyendo Hoja de entrega</div>'+
-      '<div class="proc-sub" id="pSub">Iniciando…</div>'+
+      '<div style="font-size:17px;font-weight:700;margin-bottom:4px">Leyendo Hoja de entrega</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,0.5)" id="pSub">Iniciando…</div>'+
       '<div class="proc-bar"><div class="proc-fill" id="pFill" style="width:5%"></div></div>'+
     '</div>';
 
-  var reader=new FileReader();
-  reader.onload=function(e){
-    setProc('Analizando páginas…',30);
+  var reader = new FileReader();
+  reader.onload = function(e){
+    setProceso('Analizando páginas…', 30);
     pdfjsLib.getDocument({data:e.target.result}).promise.then(function(pdf){
-      setProc('Procesando '+pdf.numPages+' página(s)…',55);
-      var ps=[];
+      setProceso('Procesando '+pdf.numPages+' página(s)…', 55);
+      var ps = [];
       for(var i=1;i<=pdf.numPages;i++){
         ps.push(pdf.getPage(i).then(function(p){ return p.getTextContent().then(function(tc){ return tc.items.map(function(it){ return it.str; }).join(' '); }); }));
       }
       return Promise.all(ps);
     }).then(function(textos){
-      setProc('Identificando facturas…',80);
-      var res=extraerFacturas(textos.join(' '));
-      setProc('Listo — '+res.facturas.length+' facturas encontradas',100);
-      G.pdfData=res;
+      setProceso('Identificando facturas…', 80);
+      var res = extraerFacturas(textos.join(' '));
+      setProceso('Listo — '+res.facturas.length+' facturas', 100);
+      G.pdfData = res;
       setTimeout(function(){
-        if(!res.vendedor){ vistaSelVendedor(res); }
-        else { vistaRevision(res); }
-      },600);
+        if(!res.vendedor) vistaSelVendedor(res);
+        else vistaRevision(res);
+      }, 600);
     }).catch(function(err){ console.error(err); toast('Error al leer el PDF','err'); cargarMain(); });
   };
   reader.readAsArrayBuffer(file);
 }
 
-function setProc(txt,pct){
-  var s=$('pSub'); var f=$('pFill');
-  if(s) s.textContent=txt;
-  if(f) f.style.width=pct+'%';
+function setProceso(txt, pct){
+  var s = el('pSub'), f = el('pFill');
+  if(s) s.textContent = txt;
+  if(f) f.style.width = pct+'%';
 }
 
-// ── EXTRACCIÓN DE FACTURAS ─────────────────────────────
+// ── EXTRAER FACTURAS (lógica verificada 44/44) ────────────
 function extraerFacturas(texto){
   var vendedor='', folio='', fecha='';
 
-  // Limpiar marcas de pagina del PDF (ej: "17/06/2026 02:27:40 p. m. 1AG0048680")
+  // Limpiar marcas de página
   texto = texto.replace(/\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}:\d{2}\s+[ap]\.\s*m\.\s*\d+/gi, ' ');
 
-  // Extraer encabezado
-  var vm=texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+)*)/i);
-  if(vm) vendedor=vm[1].trim().replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'').replace(/\s+/g,' ').trim();
-  var fm=texto.match(/Folio:\s*(\d+)/i);
-  if(fm) folio=fm[1];
-  var dm=texto.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/i);
-  if(dm) fecha=dm[1];
+  // Encabezado
+  var vm = texto.match(/Cobrador:\s*([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+)*)/i);
+  if(vm) vendedor = vm[1].trim().replace(/Folio.*$/i,'').replace(/Fecha.*$/i,'').replace(/Totales.*$/i,'').replace(/\s+/g,' ').trim();
+  var fm = texto.match(/Folio:\s*(\d+)/i);
+  if(fm) folio = fm[1];
+  var dm = texto.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/i);
+  if(dm) fecha = dm[1];
 
-  // Procesar linea por linea — estructura exacta del PDF Microsip
-  var PFACT=new RegExp('^(AG[A-Z]?\\d{5,8}|FVB\\d{5,8}|AGR\\d{5,8})\\s+(\\d{4,5})\\s+([A-ZA-Z\\s\\(\\)\\.]+?)\\s+(\\d{2}/\\d{2}/\\d{4})\\s+(\\d{2}/\\d{2}/\\d{4})\\s+(\\d+)\\s+([\\d,]+\\.\\d{2})\\s+([\\d,]+\\.\\d{2})');
-  var PFOLIO=new RegExp('^(AG[A-Z]?\\d{5,8}|FVB\\d{5,8}|AGR\\d{5,8})\\s');
+  // Procesar línea por línea
+  var PFACT = new RegExp('^(AG[A-Z]?\\d{5,8}|FVB\\d{5,8}|AGR\\d{5,8})\\s+(\\d{4,5})\\s+([A-ZÁÉÍÓÚÑA-Z\\s\\(\\)\\.]+?)\\s+(\\d{2}/\\d{2}/\\d{4})\\s+(\\d{2}/\\d{2}/\\d{4})\\s+(\\d+)\\s+([\\d,]+\\.\\d{2})\\s+([\\d,]+\\.\\d{2})');
+  var PFOLIO = new RegExp('^(AG[A-Z]?\\d{5,8}|FVB\\d{5,8}|AGR\\d{5,8})\\s');
 
-  var lineas=texto.split('\n').map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
-  var facturas=[];
-  var i=0;
+  var lineas = texto.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length>0; });
+  var facturas = [], i = 0;
 
-  while(i<lineas.length){
-    var m=PFACT.exec(lineas[i]);
+  while(i < lineas.length){
+    var m = PFACT.exec(lineas[i]);
     if(m){
-      var nombre=m[3].trim();
-      // Consumir hasta 2 lineas de continuacion del nombre
-      for(var x=0;x<2;x++){
-        if(i+1<lineas.length){
-          var sig=lineas[i+1];
-          var esFolio=PFOLIO.test(sig);
-          var esFin=!sig||/^(Folio|Total|CUAUHTEMOC|ULISES|EMILIO|MORELOS|CDMX|PUEBLA|ABRAHAM|ENRIQUE|JORGE)/i.test(sig);
-          if(!esFolio&&!esFin&&sig.length<60){nombre=nombre+' '+sig;i++;}
+      var nombre = m[3].trim();
+      for(var x=0; x<2; x++){
+        if(i+1 < lineas.length){
+          var sig = lineas[i+1];
+          var esFolio = PFOLIO.test(sig);
+          var esFin = !sig || /^(Folio|Total|CUAUHTEMOC|ULISES|EMILIO|MORELOS|CDMX|PUEBLA|ABRAHAM|ENRIQUE|JORGE)/i.test(sig);
+          if(!esFolio && !esFin && sig.length < 60){ nombre = nombre+' '+sig; i++; }
           else break;
         }
       }
       facturas.push({
-        folio:m[1],clave:m[2],nombre:nombre.trim(),
-        fecha:m[4],vencimiento:m[5],dias:parseInt(m[6]),
+        folio:m[1], clave:m[2], nombre:nombre.trim(),
+        fecha:m[4], vencimiento:m[5], dias:parseInt(m[6]),
         total:parseFloat(m[7].replace(/,/g,'')),
         saldo:parseFloat(m[8].replace(/,/g,'')),
         estado:'pendiente'
@@ -575,360 +650,293 @@ function extraerFacturas(texto){
     }
     i++;
   }
-  return {vendedor:vendedor,folioHoja:folio,fecha:fecha,facturas:facturas};
+  return {vendedor:vendedor, folioHoja:folio, fecha:fecha, facturas:facturas};
 }
-// ── SELECTOR MANUAL DE VENDEDOR ────────────────────────
+
+// ── SELECTOR MANUAL ───────────────────────────────────────
 function vistaSelVendedor(data){
-  var vends=ZONAS[G.zona]||[];
-  var html=
-    '<div class="mh"><div><div class="mh-title">Seleccionar vendedor</div>'+
-    '<div class="mh-sub">No se detectó automáticamente — selecciónalo de la lista</div></div>'+
-    '<button class="btn-sec" onclick="vistaUpload()">← Regresar</button></div>'+
-    '<div style="background:#FEF3C7;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#92400E">'+
-    '⚠️ Se extrajeron <strong>'+data.facturas.length+' facturas</strong> pero no se detectó el cobrador. Selecciónalo:</div>'+
-    '<div class="vend-grid">';
-  vends.forEach(function(v){
-    html+='<div class="vend-sel-btn" onclick="asignarVendedor(\''+v+'\')">'+
-      '<div class="vend-sel-name">'+v+'</div>'+
-      '<div class="vend-sel-zona">'+G.zona+'</div>'+
-    '</div>';
+  var main = el('main');
+  main.innerHTML = '';
+  var h = document.createElement('div');
+  h.className = 'mh';
+  h.innerHTML = '<div><div class="mh-title">Seleccionar vendedor</div><div class="mh-sub">No se detectó automáticamente</div></div>';
+  var btnR = document.createElement('button');
+  btnR.className = 'btn-sec'; btnR.textContent = '← Regresar';
+  btnR.addEventListener('click', vistaUpload);
+  h.appendChild(btnR);
+  main.appendChild(h);
+
+  var warn = document.createElement('div');
+  warn.style.cssText = 'background:#FEF3C7;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#92400E';
+  warn.innerHTML = '⚠️ Se extrajeron <strong>'+data.facturas.length+' facturas</strong> — selecciona el cobrador manualmente:';
+  main.appendChild(warn);
+
+  var grid = document.createElement('div');
+  grid.className = 'vend-grid';
+  (ZONAS[G.zona]||[]).forEach(function(v){
+    var btn = document.createElement('div');
+    btn.className = 'vsb';
+    btn.innerHTML = '<div class="vsb-name">'+v+'</div><div class="vsb-zona">'+G.zona+'</div>';
+    btn.addEventListener('click', function(){ G.pdfData.vendedor = v; vistaRevision(G.pdfData); });
+    grid.appendChild(btn);
   });
-  html+='</div>';
-  $('main').innerHTML=html;
+  main.appendChild(grid);
 }
 
-function asignarVendedor(v){
-  if(G.pdfData){ G.pdfData.vendedor=v; vistaRevision(G.pdfData); }
-}
-
-// ── VISTA REVISIÓN ─────────────────────────────────────
+// ── VISTA REVISIÓN ────────────────────────────────────────
 function vistaRevision(data){
-  var totalSaldo=data.facturas.reduce(function(s,f){ return s+f.saldo; },0);
-  var clientes=new Set(data.facturas.map(function(f){ return f.nombre; })).size;
-  var vencidas=data.facturas.filter(function(f){ return f.dias>0; }).length;
+  var saldo   = data.facturas.reduce(function(s,f){ return s+f.saldo; },0);
+  var clientes = new Set(data.facturas.map(function(f){ return f.nombre; })).size;
+  var vencidas = data.facturas.filter(function(f){ return f.dias>0; }).length;
 
-  var html=
-    '<div class="mh"><div><div class="mh-title">Revisar planilla</div><div class="mh-sub">Verifica antes de activar</div></div>'+
-    '<button class="btn-sec" onclick="vistaUpload()">← Regresar</button></div>'+
-    '<div class="res-banner">'+
-      '<div><div class="rb-vend">'+data.vendedor+'</div><div class="rb-hoja">Hoja '+data.folioHoja+' · '+data.fecha+'</div></div>'+
-      '<div class="rb-stats">'+
-        '<div class="rb-s"><div class="rb-s-v">'+data.facturas.length+'</div><div class="rb-s-l">Facturas</div></div>'+
-        '<div class="rb-s"><div class="rb-s-v">'+clientes+'</div><div class="rb-s-l">Clientes</div></div>'+
-        '<div class="rb-s"><div class="rb-s-v">'+vencidas+'</div><div class="rb-s-l">Vencidas</div></div>'+
-        '<div class="rb-s"><div class="rb-s-v" style="font-size:15px">$'+Math.round(totalSaldo/1000)+'K</div><div class="rb-s-l">Saldo</div></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="tbl">'+
-      '<div class="tbl-head" style="grid-template-columns:120px 1fr 100px 80px 80px">'+
-        '<div class="th">Folio</div><div class="th">Cliente</div><div class="th">Vencimiento</div><div class="th">Atraso</div><div class="th">Saldo</div>'+
-      '</div>';
+  var main = el('main');
+  main.innerHTML = '';
 
+  var h = document.createElement('div');
+  h.className = 'mh';
+  h.innerHTML = '<div><div class="mh-title">Revisar planilla</div><div class="mh-sub">Verifica antes de activar</div></div>';
+  var btnR = document.createElement('button');
+  btnR.className = 'btn-sec'; btnR.textContent = '← Regresar';
+  btnR.addEventListener('click', vistaUpload);
+  h.appendChild(btnR);
+  main.appendChild(h);
+
+  var banner = document.createElement('div');
+  banner.className = 'res-banner';
+  banner.innerHTML =
+    '<div><div class="rb-vend">'+data.vendedor+'</div><div class="rb-hoja">Hoja '+data.folioHoja+' · '+data.fecha+'</div></div>'+
+    '<div class="rb-stats">'+
+      '<div class="rb-s"><div class="rb-sv">'+data.facturas.length+'</div><div class="rb-sl">Facturas</div></div>'+
+      '<div class="rb-s"><div class="rb-sv">'+clientes+'</div><div class="rb-sl">Clientes</div></div>'+
+      '<div class="rb-s"><div class="rb-sv">'+vencidas+'</div><div class="rb-sl">Vencidas</div></div>'+
+      '<div class="rb-s"><div class="rb-sv" style="font-size:16px">$'+Math.round(saldo/1000)+'K</div><div class="rb-sl">Saldo</div></div>'+
+    '</div>';
+  main.appendChild(banner);
+
+  var tbl = document.createElement('div');
+  tbl.className = 'tbl';
+  tbl.innerHTML =
+    '<div class="tbl-head" style="grid-template-columns:120px 50px 1fr 100px 60px 80px 80px">'+
+      '<div class="th">Folio</div><div class="th">Clave</div><div class="th">Nombre</div>'+
+      '<div class="th">Vencimiento</div><div class="th">Atraso</div><div class="th">Total</div><div class="th">Saldo</div>'+
+    '</div>';
   data.facturas.forEach(function(f){
-    var bdg=f.dias>7?'<span class="bdg bdg-r">'+f.dias+'d</span>':f.dias>0?'<span class="bdg bdg-a">'+f.dias+'d</span>':'<span class="bdg bdg-v">OK</span>';
-    html+='<div class="tbl-row" style="grid-template-columns:120px 1fr 100px 80px 80px">'+
-      '<div class="td mo">'+f.folio+'</div>'+
+    var bdg = f.dias>7?'<span class="bdg bdg-r">'+f.dias+'d</span>':f.dias>0?'<span class="bdg bdg-a">'+f.dias+'d</span>':'<span class="bdg bdg-v">OK</span>';
+    var row = document.createElement('div');
+    row.className = 'tbl-row';
+    row.style.gridTemplateColumns = '120px 50px 1fr 100px 60px 80px 80px';
+    row.innerHTML =
+      '<div class="td" style="font-family:monospace;font-size:11px;color:var(--gri)">'+f.folio+'</div>'+
+      '<div class="td g">'+f.clave+'</div>'+
       '<div class="td b">'+f.nombre+'</div>'+
       '<div class="td g">'+f.vencimiento+'</div>'+
       '<div>'+bdg+'</div>'+
-      '<div class="td o">$'+fmt(f.saldo)+'</div>'+
-    '</div>';
+      '<div class="td g">$'+fmt(f.total)+'</div>'+
+      '<div class="td" style="color:var(--ora);font-weight:700">$'+fmt(f.saldo)+'</div>';
+    tbl.appendChild(row);
   });
-  html+='</div>'+
-    '<div class="btn-row">'+
-      '<button class="btn-ora" id="btnAct" onclick="activar()">✅ Activar planilla — '+data.vendedor+' verá sus facturas en la app</button>'+
-      '<button class="btn-sec" onclick="vistaUpload()">Cargar otro PDF</button>'+
-    '</div>';
-  $('main').innerHTML=html;
+  main.appendChild(tbl);
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;margin-top:20px;flex-wrap:wrap';
+  var btnAct = document.createElement('button');
+  btnAct.id = 'btnAct';
+  btnAct.className = 'btn-ora';
+  btnAct.textContent = '✅ Activar planilla — '+data.vendedor+' verá sus facturas en la app';
+  btnAct.addEventListener('click', activar);
+  var btnOtro = document.createElement('button');
+  btnOtro.className = 'btn-sec';
+  btnOtro.textContent = 'Cargar otro PDF';
+  btnOtro.addEventListener('click', vistaUpload);
+  btnRow.appendChild(btnAct);
+  btnRow.appendChild(btnOtro);
+  main.appendChild(btnRow);
 }
 
-// ── ACTIVAR PLANILLA ───────────────────────────────────
+// ── ACTIVAR ───────────────────────────────────────────────
 function activar(){
   if(!G.pdfData||!G.pdfData.facturas.length){ toast('Sin facturas','err'); return; }
-  var btn=$('btnAct');
-  btn.disabled=true; btn.textContent='⏳ Activando…';
+  var btn = el('btnAct');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Activando…'; }
 
-  var data=G.pdfData;
-  var vendedor=data.vendedor;
-  var zonaV=zonaDeVendedor(vendedor);
-  var k=key(vendedor);
-  var ts=Date.now();
-  var facts={};
-  data.facturas.forEach(function(f){ facts[f.folio]={folio:f.folio,nombre:f.nombre,fecha:f.fecha,vencimiento:f.vencimiento,dias:f.dias,total:f.total,saldo:f.saldo,estado:'pendiente'}; });
+  var data = G.pdfData;
+  var vendedor = data.vendedor;
+  var zonaV = getZona(vendedor);
+  var k = key(vendedor);
+  var ts = Date.now();
+  var facts = {};
+  data.facturas.forEach(function(f){ facts[f.folio] = {folio:f.folio,clave:f.clave,nombre:f.nombre,fecha:f.fecha,vencimiento:f.vencimiento,dias:f.dias,total:f.total,saldo:f.saldo,estado:'pendiente'}; });
 
-  var planilla={
+  var planilla = {
     vendedor:vendedor, folio_hoja:data.folioHoja, fecha:data.fecha,
     ts:ts, estado:'activa', cargadaPor:G.user, zona:zonaV,
     totalFacturas:data.facturas.length, cobradas:0, facturas:facts
   };
 
   db.ref('planillas/'+zonaV+'/'+k+'/'+ts).set(planilla).then(function(){
-    G.pdfData=null;
-    var saldo=Object.values(facts).reduce(function(s,f){ return s+(f.saldo||0); },0);
-    $('main').innerHTML=
+    G.pdfData = null;
+    var saldo = Object.values(facts).reduce(function(s,f){ return s+(f.saldo||0); },0);
+    el('main').innerHTML =
       '<div style="text-align:center;padding:60px 20px">'+
         '<div style="font-size:64px;margin-bottom:16px">✅</div>'+
         '<div style="font-size:26px;font-weight:800;color:var(--ver);margin-bottom:8px">Planilla activada</div>'+
-        '<div style="font-size:14px;color:var(--gri);margin-bottom:28px">'+vendedor+' ya puede ver sus facturas en la app del celular</div>'+
+        '<div style="font-size:14px;color:var(--gri);margin-bottom:28px">'+vendedor+' ya puede ver sus facturas en la app</div>'+
         '<div style="background:var(--mar);border-radius:14px;padding:18px 24px;max-width:420px;margin:0 auto 28px;text-align:left">'+
           '<div style="font-size:17px;font-weight:800;color:var(--ora);margin-bottom:12px">'+vendedor+'</div>'+
-          '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid rgba(255,255,255,.1)">'+
-            '<span style="font-size:12px;color:rgba(255,255,255,.5)">Hoja</span>'+
-            '<span style="font-size:12px;font-weight:700;color:#fff">'+data.folioHoja+'</span>'+
-          '</div>'+
-          '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid rgba(255,255,255,.1)">'+
-            '<span style="font-size:12px;color:rgba(255,255,255,.5)">Facturas cargadas</span>'+
-            '<span style="font-size:12px;font-weight:700;color:#fff">'+data.facturas.length+'</span>'+
-          '</div>'+
-          '<div style="display:flex;justify-content:space-between;padding:7px 0">'+
-            '<span style="font-size:12px;color:rgba(255,255,255,.5)">Saldo total</span>'+
-            '<span style="font-size:14px;font-weight:800;color:var(--ora)">$'+fmt(saldo)+'</span>'+
-          '</div>'+
+          '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid rgba(255,255,255,.1)"><span style="font-size:12px;color:rgba(255,255,255,.5)">Hoja</span><span style="font-size:12px;font-weight:700;color:#fff">'+data.folioHoja+'</span></div>'+
+          '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid rgba(255,255,255,.1)"><span style="font-size:12px;color:rgba(255,255,255,.5)">Facturas</span><span style="font-size:12px;font-weight:700;color:#fff">'+data.facturas.length+'</span></div>'+
+          '<div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:12px;color:rgba(255,255,255,.5)">Saldo total</span><span style="font-size:14px;font-weight:800;color:var(--ora)">$'+fmt(saldo)+'</span></div>'+
         '</div>'+
-        '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">'+
-          '<button class="btn-ora" onclick="cargarMain()">📋 Ver planillas activas</button>'+
-          '<button class="btn-mar" onclick="vistaUpload()">📄 Cargar otra planilla</button>'+
-        '</div>'+
+        '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap" id="exitoBtns"></div>'+
       '</div>';
+    var eb = el('exitoBtns');
+    var b1 = document.createElement('button');
+    b1.className='btn-ora'; b1.textContent='📋 Ver planillas activas';
+    b1.addEventListener('click', cargarMain);
+    var b2 = document.createElement('button');
+    b2.className='btn-sec'; b2.style.cssText='border-color:var(--ora);color:var(--ora)';
+    b2.textContent='📄 Cargar otra planilla';
+    b2.addEventListener('click', vistaUpload);
+    eb.appendChild(b1); eb.appendChild(b2);
     cargarSidebar();
     toast('✅ Planilla activada correctamente','ok');
-  }).catch(function(e){
-    console.error(e);
-    toast('Error al guardar en Firebase','err');
-    btn.disabled=false; btn.textContent='✅ Activar planilla';
-  });
+  }).catch(function(e){ console.error(e); toast('Error al guardar','err'); if(btn){btn.disabled=false;btn.textContent='✅ Activar planilla';} });
 }
 
-// ── VER DETALLE ────────────────────────────────────────
-function verDetalle(dataStr){
-  var r=JSON.parse(dataStr.replace(/&quot;/g,'"'));
-  var h=r.hoja;
-  var facts=h.facturas?Object.values(h.facturas):[];
-  $('modalTit').textContent=r.vendor+' · Hoja '+h.folio_hoja;
-  var html=
-    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px">'+
-      '<div style="background:var(--fon);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800">'+facts.length+'</div><div style="font-size:10px;color:var(--gri);text-transform:uppercase;letter-spacing:.8px">Facturas</div></div>'+
-      '<div style="background:var(--fon);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--ver)">'+(h.cobradas||0)+'</div><div style="font-size:10px;color:var(--gri);text-transform:uppercase;letter-spacing:.8px">Cobradas</div></div>'+
-      '<div style="background:var(--fon);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:800;color:var(--ora)">'+(facts.length-(h.cobradas||0))+'</div><div style="font-size:10px;color:var(--gri);text-transform:uppercase;letter-spacing:.8px">Pendientes</div></div>'+
+// ── VER DETALLE ───────────────────────────────────────────
+function verDetalle(r){
+  var h = r.hoja;
+  var facts = h.facturas ? Object.values(h.facturas) : [];
+  el('modalTit').textContent = r.vendor+' · Hoja '+h.folio_hoja;
+  var saldo = facts.reduce(function(s,f){ return s+(f.saldo||0); },0);
+  var cobradas = facts.filter(function(f){ return f.estado==='cobrada'; }).length;
+  var html =
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">'+
+      '<div class="tdg"><div class="tdg-v">'+facts.length+'</div><div class="tdg-l">Facturas</div></div>'+
+      '<div class="tdg"><div class="tdg-v" style="color:var(--ver)">'+cobradas+'</div><div class="tdg-l">Cobradas</div></div>'+
+      '<div class="tdg"><div class="tdg-v ora">$'+Math.round(saldo/1000)+'K</div><div class="tdg-l">Saldo</div></div>'+
     '</div>'+
     '<div class="tbl">'+
-      '<div class="tbl-head" style="grid-template-columns:115px 1fr 90px 80px 70px">'+
-        '<div class="th">Folio</div><div class="th">Cliente</div><div class="th">Venc.</div><div class="th">Saldo</div><div class="th">Estado</div>'+
+      '<div class="tbl-head" style="grid-template-columns:110px 1fr 90px 80px 70px">'+
+        '<div class="th">Folio</div><div class="th">Nombre</div><div class="th">Venc.</div><div class="th">Saldo</div><div class="th">Estado</div>'+
       '</div>';
   facts.forEach(function(f){
-    var est=f.estado==='cobrada'?'<span class="bdg bdg-v">Cobrado</span>':'<span class="bdg bdg-a">Pend.</span>';
-    html+='<div class="tbl-row" style="grid-template-columns:115px 1fr 90px 80px 70px">'+
-      '<div class="td mo">'+f.folio+'</div>'+
-      '<div class="td b" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.nombre+'</div>'+
-      '<div class="td g">'+f.vencimiento+'</div>'+
-      '<div class="td o">$'+fmt(f.saldo)+'</div>'+
-      '<div>'+est+'</div>'+
-    '</div>';
+    var est = f.estado==='cobrada'?'<span class="bdg bdg-v">Cobrado</span>':'<span class="bdg bdg-a">Pend.</span>';
+    html +=
+      '<div class="tbl-row" style="grid-template-columns:110px 1fr 90px 80px 70px">'+
+        '<div class="td" style="font-family:monospace;font-size:10px;color:var(--gri)">'+f.folio+'</div>'+
+        '<div class="td b" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.nombre+'</div>'+
+        '<div class="td g">'+f.vencimiento+'</div>'+
+        '<div class="td" style="color:var(--ora);font-weight:700">$'+fmt(f.saldo)+'</div>'+
+        '<div>'+est+'</div>'+
+      '</div>';
   });
-  html+='</div>';
-  $('modalBod').innerHTML=html;
-  $('modalDet').style.display='flex';
+  html += '</div>';
+  el('modalBod').innerHTML = html;
+  el('modalDet').style.display = 'flex';
 }
 
-// ── TOAST ──────────────────────────────────────────────
-// ── DESCARGA INDIVIDUAL ────────────────────────────────
-function descargarPlanilla(dataStr, formato){
-  var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
+// ── DESCARGAR PLANILLA ────────────────────────────────────
+function descargarPlanilla(r, formato){
   var h = r.hoja;
-  // Validar que la planilla fue cargada por quien está logueado
-  if(h.cargadaPor && h.cargadaPor !== G.user){
-    toast('Esta planilla fue cargada por '+h.cargadaPor,'warn');
-    return;
-  }
+  if(h.cargadaPor && h.cargadaPor !== G.user){ toast('Esta planilla fue cargada por '+h.cargadaPor,'warn'); return; }
   var facts = h.facturas ? Object.values(h.facturas) : [];
-  if(!facts.length){ toast('Sin facturas para descargar','warn'); return; }
-
+  if(!facts.length){ toast('Sin facturas','warn'); return; }
   var rows = facts.map(function(f){
     return {
-      'Hoja': h.folio_hoja,
-      'Cobrador': r.vendor,
-      'Folio': f.folio,
-      'Clave': f.clave||'',
-      'Nombre': f.nombre,
-      'Fecha Factura': f.fecha,
-      'Vencimiento': f.vencimiento,
-      'Atraso (días)': f.dias||0,
-      'Total Original': f.total||0,
-      'Saldo': f.saldo||0,
-      'Efectivo': f.tipo==='Efectivo' ? f.montoCobrado||0 : 0,
-      'Cheque': f.tipo==='Cheque' ? f.montoCobrado||0 : 0,
-      'A Cuenta': (f.tipo&&f.tipo!=='Efectivo'&&f.tipo!=='Cheque'&&f.montoCobrado) ? f.montoCobrado : 0,
-      'Banco': f.banco||'',
-      'Tipo de Cobro': f.tipo||'',
-      'Estado': f.estado||'pendiente',
-      'Fecha Cobro': f.fechaCobro||'',
-      'Comprobante': f.tieneFoto ? 'SÍ' : 'NO',
-      'Observaciones': f.referencia||''
+      'Hoja':h.folio_hoja, 'Cobrador':r.vendor, 'Folio':f.folio, 'Clave':f.clave||'',
+      'Nombre':f.nombre, 'Fecha Factura':f.fecha, 'Vencimiento':f.vencimiento,
+      'Atraso (días)':f.dias||0, 'Total Original':f.total||0, 'Saldo':f.saldo||0,
+      'Efectivo':f.tipo==='Efectivo'?(f.montoCobrado||0):0,
+      'Cheque':f.tipo==='Cheque'?(f.montoCobrado||0):0,
+      'A Cuenta':(f.tipo&&f.tipo!=='Efectivo'&&f.tipo!=='Cheque'&&f.montoCobrado)?f.montoCobrado:0,
+      'Banco':f.banco||'', 'Tipo de Cobro':f.tipo||'', 'Estado':f.estado||'pendiente',
+      'Fecha Cobro':f.fechaCobro||'', 'Comprobante':f.tieneFoto?'SÍ':'NO', 'Observaciones':''
     };
   });
-
   var nombre = 'Planilla_'+r.vendor+'_Hoja'+h.folio_hoja+'_'+h.fecha.replace(/\//g,'-');
-
   if(formato==='excel'){
     var ws = XLSX.utils.json_to_sheet(rows);
-    // Ancho de columnas
-    ws['!cols'] = [
-      {wch:8},{wch:16},{wch:10},{wch:14},{wch:40},{wch:12},{wch:12},
-      {wch:10},{wch:14},{wch:14},{wch:12},{wch:14},{wch:12}
-    ];
+    ws['!cols']=[{wch:8},{wch:16},{wch:14},{wch:7},{wch:42},{wch:12},{wch:12},{wch:10},{wch:14},{wch:14},{wch:12},{wch:12},{wch:12},{wch:12},{wch:14},{wch:12},{wch:12},{wch:12},{wch:14}];
     var wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, r.vendor);
     XLSX.writeFile(wb, nombre+'.xlsx');
-    toast('✅ Excel descargado — '+r.vendor,'ok');
+    toast('✅ Excel descargado','ok');
   } else {
-    var csv = rows.map(function(row){
-      return Object.values(row).map(function(v){
-        return '"'+String(v||'').replace(/"/g,'""')+'"';
-      }).join(',');
-    });
-    csv.unshift(Object.keys(rows[0]).join(','));
-    var blob = new Blob([csv.join('\n')], {type:'text/csv;charset=utf-8;'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = nombre+'.csv';
-    a.click();
-    toast('✅ CSV descargado — '+r.vendor,'ok');
+    var csv = [Object.keys(rows[0]).join(',')].concat(rows.map(function(row){ return Object.values(row).map(function(v){ return '"'+String(v||'').replace(/"/g,'""')+'"'; }).join(','); }));
+    var blob = new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+    var a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nombre+'.csv'; a.click();
+    toast('✅ CSV descargado','ok');
   }
 }
 
-// ── DESCARGA TODAS LAS PLANILLAS ACTIVAS ───────────────
+// ── DESCARGAR TODAS ───────────────────────────────────────
 function descargarTodas(formato){
   var vends = ZONAS[G.zona]||[];
-  var allRows = [];
-  var done = 0; var total = vends.length;
+  var allRows = [], done=0;
   toast('⏳ Preparando descarga…','');
-
   vends.forEach(function(v){
     db.ref('planillas/'+G.zona+'/'+key(v)).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
-      var d = snap.val();
+      var d=snap.val();
       if(d){
-        var h = Object.values(d)[0];
-        if(h && h.estado==='activa' && h.facturas && h.cargadaPor===G.user){
+        var h=Object.values(d)[0];
+        if(h&&h.estado==='activa'&&h.facturas&&h.cargadaPor===G.user){
           Object.values(h.facturas).forEach(function(f){
             allRows.push({
-              'Hoja': h.folio_hoja,
-              'Cobrador': v,
-              'Folio': f.folio,
-              'Clave': f.clave||'',
-              'Nombre': f.nombre,
-              'Fecha Factura': f.fecha,
-              'Vencimiento': f.vencimiento,
-              'Atraso (días)': f.dias||0,
-              'Total Original': f.total||0,
-              'Saldo': f.saldo||0,
-              'Efectivo': f.tipo==='Efectivo' ? f.montoCobrado||0 : 0,
-              'Cheque': f.tipo==='Cheque' ? f.montoCobrado||0 : 0,
-              'A Cuenta': (f.tipo&&f.tipo!=='Efectivo'&&f.tipo!=='Cheque'&&f.montoCobrado) ? f.montoCobrado : 0,
-              'Banco': f.banco||'',
-              'Tipo de Cobro': f.tipo||'',
-              'Estado': f.estado||'pendiente',
-              'Fecha Cobro': f.fechaCobro||'',
-              'Comprobante': f.tieneFoto ? 'SÍ' : 'NO',
-              'Observaciones': f.referencia||''
+              'Hoja':h.folio_hoja,'Cobrador':v,'Folio':f.folio,'Clave':f.clave||'','Nombre':f.nombre,
+              'Fecha Factura':f.fecha,'Vencimiento':f.vencimiento,'Atraso (días)':f.dias||0,
+              'Total Original':f.total||0,'Saldo':f.saldo||0,
+              'Efectivo':f.tipo==='Efectivo'?(f.montoCobrado||0):0,
+              'Cheque':f.tipo==='Cheque'?(f.montoCobrado||0):0,
+              'A Cuenta':(f.tipo&&f.tipo!=='Efectivo'&&f.tipo!=='Cheque'&&f.montoCobrado)?f.montoCobrado:0,
+              'Banco':f.banco||'','Tipo de Cobro':f.tipo||'','Estado':f.estado||'pendiente',
+              'Fecha Cobro':f.fechaCobro||'','Comprobante':f.tieneFoto?'SÍ':'NO','Observaciones':''
             });
           });
         }
       }
       done++;
-      if(done===total){
-        if(!allRows.length){ toast('Sin planillas activas para descargar','warn'); return; }
-        // Ordenar por hoja y vendedor
-        allRows.sort(function(a,b){
-          if(a.Hoja !== b.Hoja) return a.Hoja - b.Hoja;
-          return a.Vendedor.localeCompare(b.Vendedor);
-        });
-        var fecha = new Date().toLocaleDateString('es-MX').replace(/\//g,'-');
-        var nombre = 'Planillas_'+G.zona+'_'+fecha;
-        if(formato==='excel'){
-          var ws = XLSX.utils.json_to_sheet(allRows);
-          ws['!cols'] = [
-            {wch:8},{wch:16},{wch:14},{wch:8},{wch:40},{wch:12},{wch:12},
-            {wch:10},{wch:14},{wch:14},{wch:12},{wch:12},{wch:12},
-            {wch:12},{wch:14},{wch:12},{wch:12},{wch:12},{wch:16}
-          ];
-          // Colorear filas vencidas
-          var wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, 'Planillas '+G.zona);
-          // Hoja resumen por vendedor
-          var resumen = {};
-          allRows.forEach(function(r){
-            if(!resumen[r.Vendedor]) resumen[r.Vendedor]={Vendedor:r.Vendedor,Zona:r.Zona,Facturas:0,Cobradas:0,'Saldo Total':0,'Cobrado':0};
-            resumen[r.Vendedor].Facturas++;
-            if(r.Estado==='cobrada') resumen[r.Vendedor].Cobradas++;
-            resumen[r.Vendedor]['Saldo Total']+=r['Saldo Pendiente'];
-            resumen[r.Vendedor]['Cobrado']+=r['Monto Cobrado']||0;
-          });
-          var wsRes = XLSX.utils.json_to_sheet(Object.values(resumen));
-          wsRes['!cols']=[{wch:16},{wch:10},{wch:10},{wch:10},{wch:14},{wch:14}];
-          XLSX.utils.book_append_sheet(wb, wsRes, 'Resumen por Vendedor');
-          XLSX.writeFile(wb, nombre+'.xlsx');
-          toast('✅ Excel con '+allRows.length+' facturas descargado','ok');
-        } else {
-          var csv = allRows.map(function(row){
-            return Object.values(row).map(function(v){
-              return '"'+String(v||'').replace(/"/g,'""')+'"';
-            }).join(',');
-          });
-          csv.unshift(Object.keys(allRows[0]).join(','));
-          var blob = new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = nombre+'.csv';
-          a.click();
-          toast('✅ CSV con '+allRows.length+' facturas descargado','ok');
-        }
+      if(done===vends.length){
+        if(!allRows.length){ toast('Sin planillas activas cargadas por ti','warn'); return; }
+        var fecha=new Date().toLocaleDateString('es-MX').replace(/\//g,'-');
+        var nombre='Planillas_'+G.zona+'_'+fecha;
+        var ws=XLSX.utils.json_to_sheet(allRows);
+        var wb=XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb,ws,'Planillas '+G.zona);
+        XLSX.writeFile(wb,nombre+'.xlsx');
+        toast('✅ Excel con '+allRows.length+' facturas descargado','ok');
       }
     });
   });
 }
 
-// ── CERRAR PLANILLA ────────────────────────────────────
-function cerrarPlanillaConfirm(dataStr){
-  var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
+// ── CERRAR PLANILLA ───────────────────────────────────────
+function cerrarPlanilla(r){
   if(!confirm('¿Cerrar la planilla Hoja '+r.hoja.folio_hoja+' de '+r.vendor+'?\nPasará al historial. Los cobros no se borran.')) return;
-  var zonaV = zonaDeVendedor(r.vendor);
-  var k = key(r.vendor);
-  // Obtener la key de la planilla
+  var zonaV=getZona(r.vendor), k=key(r.vendor);
   db.ref('planillas/'+zonaV+'/'+k).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
-    var d = snap.val();
-    if(!d) return;
-    var planillaKey = Object.keys(d)[0];
-    return db.ref('planillas/'+zonaV+'/'+k+'/'+planillaKey+'/estado').set('cerrada');
-  }).then(function(){
-    toast('✓ Planilla cerrada — pasó al historial','ok');
-    cargarSidebar();
-    cargarMain();
-  }).catch(function(e){ console.error(e); toast('Error al cerrar','err'); });
+    var d=snap.val(); if(!d) return;
+    return db.ref('planillas/'+zonaV+'/'+k+'/'+Object.keys(d)[0]+'/estado').set('cerrada');
+  }).then(function(){ toast('✓ Planilla cerrada','ok'); cargarSidebar(); cargarMain(); })
+  .catch(function(e){ console.error(e); toast('Error al cerrar','err'); });
 }
 
-// ── BORRAR PLANILLA ─────────────────────────────────────
-function borrarPlanillaConfirm(dataStr){
-  var r = JSON.parse(dataStr.replace(/&quot;/g,'"'));
+// ── BORRAR PLANILLA ───────────────────────────────────────
+function borrarPlanilla(r){
   if(!confirm('¿BORRAR la planilla Hoja '+r.hoja.folio_hoja+' de '+r.vendor+'?\nEsta acción NO se puede deshacer.\nLos cobros registrados NO se borran.')) return;
-  var zonaV = zonaDeVendedor(r.vendor);
-  var k = key(r.vendor);
+  var zonaV=getZona(r.vendor), k=key(r.vendor);
   db.ref('planillas/'+zonaV+'/'+k).orderByChild('ts').limitToLast(1).once('value').then(function(snap){
-    var d = snap.val();
-    if(!d) return;
-    var planillaKey = Object.keys(d)[0];
-    return db.ref('planillas/'+zonaV+'/'+k+'/'+planillaKey).remove();
-  }).then(function(){
-    toast('🗑 Planilla borrada','ok');
-    cargarSidebar();
-    cargarMain();
-  }).catch(function(e){ console.error(e); toast('Error al borrar','err'); });
+    var d=snap.val(); if(!d) return;
+    return db.ref('planillas/'+zonaV+'/'+k+'/'+Object.keys(d)[0]).remove();
+  }).then(function(){ toast('🗑 Planilla borrada','ok'); cargarSidebar(); cargarMain(); })
+  .catch(function(e){ console.error(e); toast('Error al borrar','err'); });
 }
 
+// ── TOAST ─────────────────────────────────────────────────
 var _tt;
 function toast(msg,tipo){
-  var el=$('toast');
-  el.textContent=msg; el.className='toast show '+(tipo||'');
-  clearTimeout(_tt); _tt=setTimeout(function(){ el.classList.remove('show'); },3200);
+  var t=el('toast'); t.textContent=msg; t.className='toast show '+(tipo||'');
+  clearTimeout(_tt); _tt=setTimeout(function(){ t.classList.remove('show'); },3200);
 }
 </script>
 </body>
