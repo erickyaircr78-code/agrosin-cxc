@@ -618,16 +618,28 @@ function extraerFacturas(texto){
   // Normalizar espacios (pdfjs retorna texto como una línea larga)
   texto = texto.replace(/\s+/g, ' ');
 
-  // Extraer vendedor — buscar entre "Cobrador:" y "Folio"
-  var vm = texto.match(/Cobrador:\s*([A-Z][A-Z\s]+?)(?=\s+Folio)/i);
-  if(vm){
-    vendedor = vm[1].trim().replace(/\s+/g,' ');
-    // Validar contra catálogo
-    var encontrado = false;
-    for(var zz in ZONAS){
-      if(ZONAS[zz].indexOf(vendedor) >= 0){ encontrado = true; break; }
+  // Extraer vendedor — buscar "Cobrador:" y tomar la(s) palabra(s) que siguen
+  var idxCob = texto.indexOf('Cobrador:');
+  if(idxCob < 0) idxCob = texto.toLowerCase().indexOf('cobrador:');
+  if(idxCob >= 0){
+    var despues = texto.substring(idxCob + 9).trim(); // 9 = len('Cobrador:')
+    var idxFolio = despues.indexOf(' Folio ');
+    if(idxFolio < 0) idxFolio = despues.indexOf(' folio ');
+    if(idxFolio > 0){
+      vendedor = despues.substring(0, idxFolio).trim().replace(/\s+/g,' ');
+    } else {
+      // Tomar hasta la primera fecha o número de 5 dígitos
+      var mPalabras = despues.match(/^([A-Z][A-Z\s]{1,30})(?=\s+\d{2}\/|\s+\d{5})/i);
+      if(mPalabras) vendedor = mPalabras[1].trim().replace(/\s+/g,' ');
     }
-    if(!encontrado) vendedor = '';
+    // Validar contra catálogo
+    if(vendedor){
+      var encontrado = false;
+      for(var zz in ZONAS){
+        if(ZONAS[zz].indexOf(vendedor) >= 0){ encontrado = true; break; }
+      }
+      if(!encontrado) vendedor = '';
+    }
   }
   var fm = texto.match(/Folio:\s*(\d+)/i);
   if(fm) folio = fm[1];
